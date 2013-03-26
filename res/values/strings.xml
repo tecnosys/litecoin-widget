@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+ <string name="app_name">Litecoin Widget</string>
+
+ <string name="pref_category_data">Data source</string>
+ <string name="pref_exchange">Exchange</string>
+ <string name="pref_summary_exchange">Please select an exchange</string>
+
+ <string name="button_go">go</string>
+</resources>

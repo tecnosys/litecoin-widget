@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+ <PreferenceCategory
+   android:title="@string/pref_category_data"
+   android:key="pref_key_category_data">
+ <ListPreference
+   android:title="@string/pref_exchange"
+   android:key="pref_key_exchange"
+   android:summary="@string/pref_summary_exchange"
+   android:entries="@array/array_exchanges"
+   android:entryValues="@array/array_exchange_values" />
+ </PreferenceCategory>
+</PreferenceScreen>
