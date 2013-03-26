@@ -1,5 +1,6 @@
 package org.phauna.litecoinwidget;
 
+import java.text.DecimalFormat;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
@@ -43,23 +44,24 @@ public class UpdateWidgetService extends Service {
         Log.d(C.LOG, "exchange is vircurex");
         // vircurex only has BTC price
         double priceBTC = Downloaders.getVircurexPriceBTC();
-        remoteViews.setTextViewText(R.id.priceBTC, "BTC" + priceBTC);
+        remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTC(priceBTC));
         remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
       } else if (exchange.equals(C.EXCHANGE_BTCE)) {
         Log.d(C.LOG, "exchange is btc-e");
         // get both prices
         double priceBTC = Downloaders.getBtcePriceBTC();
         double priceUSD = Downloaders.getBtcePriceUSD();
-        remoteViews.setTextViewText(R.id.priceBTC, "BTC" + priceBTC);
+        remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTC(priceBTC));
         remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
-        remoteViews.setTextViewText(R.id.priceUSD, "$" + priceUSD);
+        remoteViews.setTextViewText(R.id.priceUSD, "$" + roundBTC(priceUSD));
       }
 
       long now = new Date().getTime();
       String dateText = DateUtils.formatSameDayTime(
         now, now, java.text.DateFormat.SHORT, java.text.DateFormat.SHORT
       ).toString();
-      remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(exchange) + "@" + dateText);
+      remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(exchange));
+      remoteViews.setTextViewText(R.id.time, dateText);
 
       // refresh when clicked
       Intent clickIntent = new Intent(this.getApplicationContext(), MyWidgetProvider.class);
@@ -80,6 +82,11 @@ public class UpdateWidgetService extends Service {
     stopSelf();
 
     super.onStart(intent, startId);
+  }
+
+  String roundBTC(double d) {
+    DecimalFormat df = new DecimalFormat("#.####");
+    return df.format(d);
   }
 
   @Override
