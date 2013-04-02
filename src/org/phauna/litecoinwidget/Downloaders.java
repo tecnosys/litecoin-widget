@@ -9,6 +9,39 @@ import android.util.Log;
 
 public class Downloaders {
 
+  public static double getBitfloorPriceBTCUSD() {
+    try {
+      URL url = new URL("https://api.bitfloor.com/book/L1/1");
+      String json = downloadReq(url);
+      JSONObject j = new JSONObject(json);
+      double bid = j.getJSONArray("bid").getDouble(0);
+      double ask = j.getJSONArray("ask").getDouble(0);
+      double price = (bid + ask) / 2;
+      return price;
+    } catch (MalformedURLException e) {
+      assert false;
+    } catch (JSONException e) {
+    }
+
+    return 0;
+  }
+
+  public static double getBtcePriceBTCUSD() {
+    try {
+      URL url = new URL("https://btc-e.com/api/2/btc_usd/ticker");
+      String json = downloadReq(url);
+      JSONObject j = new JSONObject(json);
+      JSONObject ticker = j.getJSONObject("ticker");
+      double last = ticker.getDouble("last");
+      return last;
+    } catch (MalformedURLException e) {
+      assert false;
+    } catch (JSONException e) {
+    }
+
+    return 0;
+  }
+
   public static double getVircurexPriceBTC() {
     try {
       URL url = new URL("https://vircurex.com/api/get_last_trade.json?base=LTC&alt=BTC");

@@ -1,5 +1,6 @@
 package org.phauna.litecoinwidget;
 
+import java.text.DecimalFormat;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
@@ -17,6 +18,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
+
+import android.net.NetworkInfo;
+import android.net.ConnectivityManager;
 
 public class UpdateWidgetService extends Service {
 
@@ -39,27 +43,49 @@ public class UpdateWidgetService extends Service {
           .getApplicationContext().getPackageName(),
           R.layout.widget_layout);
 
-      if (exchange.equals(C.EXCHANGE_VIRCUREX)) {
-        Log.d(C.LOG, "exchange is vircurex");
-        // vircurex only has BTC price
-        double priceBTC = Downloaders.getVircurexPriceBTC();
-        remoteViews.setTextViewText(R.id.priceBTC, "BTC" + priceBTC);
-        remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
-      } else if (exchange.equals(C.EXCHANGE_BTCE)) {
-        Log.d(C.LOG, "exchange is btc-e");
-        // get both prices
-        double priceBTC = Downloaders.getBtcePriceBTC();
-        double priceUSD = Downloaders.getBtcePriceUSD();
-        remoteViews.setTextViewText(R.id.priceBTC, "BTC" + priceBTC);
-        remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
-        remoteViews.setTextViewText(R.id.priceUSD, "$" + priceUSD);
-      }
+      ConnectivityManager connMgr = (ConnectivityManager)
+        getSystemService(Context.CONNECTIVITY_SERVICE);
+      NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+      if (networkInfo == null || (!networkInfo.isConnected())) {
+        Log.d(C.LOG, "no internet connection");
+      } else {
+        if (exchange.equals(C.EXCHANGE_VIRCUREX)) {
+          // vircurex only has BTC price
+          double priceBTC = Downloaders.getVircurexPriceBTC();
+          remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTC(priceBTC));
+          remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
+          remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
+          remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.litecoin);
+        } else if (exchange.equals(C.EXCHANGE_BTCE)) {
+          // get both prices
+          double priceBTC = Downloaders.getBtcePriceBTC();
+          double priceUSD = Downloaders.getBtcePriceUSD();
+          remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTC(priceBTC));
+          remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
+          remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
+          remoteViews.setTextViewText(R.id.priceUSD, "$" + roundBTC(priceUSD));
+          remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.litecoin);
+        } else if (exchange.equals(C.EXCHANGE_BITFLOOR)) {
+          double price = Downloaders.getBitfloorPriceBTCUSD();
+          remoteViews.setTextViewText(R.id.priceUSD, "$" + roundUSD(price));
+          remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
+          remoteViews.setViewVisibility(R.id.priceBTC, View.GONE);
+          remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.bitcoin);
+        } else if (exchange.equals(C.EXCHANGE_BTCE_BTC)) {
+          double price = Downloaders.getBtcePriceBTCUSD();
+          remoteViews.setTextViewText(R.id.priceUSD, "$" + roundUSD(price));
+          remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
+          remoteViews.setViewVisibility(R.id.priceBTC, View.GONE);
+          remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.bitcoin);
+        }
 
-      long now = new Date().getTime();
-      String dateText = DateUtils.formatSameDayTime(
-        now, now, java.text.DateFormat.SHORT, java.text.DateFormat.SHORT
-      ).toString();
-      remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(exchange) + "@" + dateText);
+        long now = new Date().getTime();
+        String dateText = DateUtils.formatSameDayTime(
+          now, now, java.text.DateFormat.SHORT, java.text.DateFormat.SHORT
+        ).toString();
+        remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(exchange));
+        remoteViews.setTextViewText(R.id.time, dateText);
+      }
 
       // refresh when clicked
       Intent clickIntent = new Intent(this.getApplicationContext(), MyWidgetProvider.class);
@@ -80,6 +106,16 @@ public class UpdateWidgetService extends Service {
     stopSelf();
 
     super.onStart(intent, startId);
+  }
+
+  String roundBTC(double d) {
+    DecimalFormat df = new DecimalFormat("#.####");
+    return df.format(d);
+  }
+
+  String roundUSD(double d) {
+    DecimalFormat df = new DecimalFormat("#.##");
+    return df.format(d);
   }
 
   @Override
