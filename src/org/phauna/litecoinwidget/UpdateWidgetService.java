@@ -50,19 +50,33 @@ public class UpdateWidgetService extends Service {
         Log.d(C.LOG, "no internet connection");
       } else {
         if (exchange.equals(C.EXCHANGE_VIRCUREX)) {
-          Log.d(C.LOG, "exchange is vircurex");
           // vircurex only has BTC price
           double priceBTC = Downloaders.getVircurexPriceBTC();
           remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTC(priceBTC));
           remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
+          remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
+          remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.litecoin);
         } else if (exchange.equals(C.EXCHANGE_BTCE)) {
-          Log.d(C.LOG, "exchange is btc-e");
           // get both prices
           double priceBTC = Downloaders.getBtcePriceBTC();
           double priceUSD = Downloaders.getBtcePriceUSD();
           remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTC(priceBTC));
           remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
+          remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
           remoteViews.setTextViewText(R.id.priceUSD, "$" + roundBTC(priceUSD));
+          remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.litecoin);
+        } else if (exchange.equals(C.EXCHANGE_BITFLOOR)) {
+          double price = Downloaders.getBitfloorPriceBTCUSD();
+          remoteViews.setTextViewText(R.id.priceUSD, "$" + roundUSD(price));
+          remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
+          remoteViews.setViewVisibility(R.id.priceBTC, View.GONE);
+          remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.bitcoin);
+        } else if (exchange.equals(C.EXCHANGE_BTCE_BTC)) {
+          double price = Downloaders.getBtcePriceBTCUSD();
+          remoteViews.setTextViewText(R.id.priceUSD, "$" + roundUSD(price));
+          remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
+          remoteViews.setViewVisibility(R.id.priceBTC, View.GONE);
+          remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.bitcoin);
         }
 
         long now = new Date().getTime();
@@ -96,6 +110,11 @@ public class UpdateWidgetService extends Service {
 
   String roundBTC(double d) {
     DecimalFormat df = new DecimalFormat("#.####");
+    return df.format(d);
+  }
+
+  String roundUSD(double d) {
+    DecimalFormat df = new DecimalFormat("#.##");
     return df.format(d);
   }
 

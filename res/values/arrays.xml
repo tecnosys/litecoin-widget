@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
  <string-array name="array_exchanges">
-  <item>Vircurex</item>
-  <item>Btc-e</item>
+  <item>Vircurex (LTC)</item>
+  <item>Btc-e (LTC)</item>
+  <item>Bitfloor (BTC)</item>
+  <item>Btc-e (BTC)</item>
  </string-array>
  <string-array name="array_exchange_values">
   <item>vircurex</item>
   <item>btce</item>
+  <item>bitfloor</item>
+  <item>btce_btc</item>
  </string-array>
 </resources>
