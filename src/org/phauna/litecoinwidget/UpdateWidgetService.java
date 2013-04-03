@@ -113,8 +113,12 @@ public class UpdateWidgetService extends Service {
       } else if (exchange.equals(C.EXCHANGE_VIRCUREX_PPC)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.ppcoin);
       }
-      if (exchange.equals(C.EXCHANGE_VIRCUREX) || exchange.equals(C.EXCHANGE_VIRCUREX_NMC) || exchange.equals(C.EXCHANGE_VIRCUREX_PPC)) {
+      if (exchange.equals(C.EXCHANGE_VIRCUREX) || exchange.equals(C.EXCHANGE_VIRCUREX_NMC)) {
         remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTC(result.getPriceBTC()));
+        remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
+        remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
+      } else if (exchange.equals(C.EXCHANGE_VIRCUREX_PPC)) {
+        remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTCX(result.getPriceBTC()));
         remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
         remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
       } else if (exchange.equals(C.EXCHANGE_BTCE)) {
@@ -156,12 +160,17 @@ public class UpdateWidgetService extends Service {
 
   }
 
-  String roundBTC(double d) {
+  static String roundBTC(double d) {
     DecimalFormat df = new DecimalFormat("#.####");
     return df.format(d);
   }
 
-  String roundUSD(double d) {
+  static String roundBTCX(double d) {
+    DecimalFormat df = new DecimalFormat("#.#####");
+    return df.format(d);
+  }
+
+  static String roundUSD(double d) {
     DecimalFormat df = new DecimalFormat("#.##");
     return df.format(d);
   }
