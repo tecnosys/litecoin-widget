@@ -5,11 +5,15 @@
   <item>Btc-e (LTC)</item>
   <item>Bitfloor (BTC)</item>
   <item>Btc-e (BTC)</item>
+  <item>Vircurex (NMC)</item>
+  <item>Vircurex (PPC)</item>
  </string-array>
  <string-array name="array_exchange_values">
   <item>vircurex</item>
   <item>btce</item>
   <item>bitfloor</item>
   <item>btce_btc</item>
+  <item>vircurex_nmc</item>
+  <item>vircurex_ppc</item>
  </string-array>
 </resources>

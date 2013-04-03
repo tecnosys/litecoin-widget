@@ -2,19 +2,21 @@ package org.phauna.litecoinwidget;
 
 public class C {
   public static final String EXCHANGE_VIRCUREX = "vircurex";
+  public static final String EXCHANGE_VIRCUREX_NMC = "vircurex_nmc";
+  public static final String EXCHANGE_VIRCUREX_PPC = "vircurex_ppc";
   public static final String EXCHANGE_BTCE = "btce";
   public static final String EXCHANGE_BITFLOOR = "bitfloor";
   public static final String EXCHANGE_BTCE_BTC = "btce_btc";
 
   public static String exchangeName(String exchange) {
-    if (exchange.equals(EXCHANGE_VIRCUREX)) {
-      return "Vircurex";
-    } else if (exchange.equals(EXCHANGE_BTCE)) {
+    if (   exchange.equals(EXCHANGE_VIRCUREX)
+        || exchange.equals(EXCHANGE_VIRCUREX_NMC)
+        || exchange.equals(EXCHANGE_VIRCUREX_PPC)) {
+      return "V'rex";
+    } else if (exchange.equals(EXCHANGE_BTCE) | exchange.equals(EXCHANGE_BTCE_BTC)) {
       return "Btc-e";
     } else if (exchange.equals(EXCHANGE_BITFLOOR)) {
-      return "Bitfloor";
-    } else if (exchange.equals(EXCHANGE_BTCE_BTC)) {
-      return "Btc-e";
+      return "B'flr";
     } else {
       return "???";
     }

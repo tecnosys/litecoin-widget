@@ -27,26 +27,9 @@ public class Downloaders {
     return 0;
   }
 
-  public static double getBtcePriceBTCUSD() {
+  public static double getVircurexPrice(String coin) {
     try {
-      URL url = new URL("https://btc-e.com/api/2/btc_usd/ticker");
-      String json = downloadReq(url);
-      if (json == null) return 0;
-      JSONObject j = new JSONObject(json);
-      JSONObject ticker = j.getJSONObject("ticker");
-      double last = ticker.getDouble("last");
-      return last;
-    } catch (MalformedURLException e) {
-      assert false;
-    } catch (JSONException e) {
-    }
-
-    return 0;
-  }
-
-  public static double getVircurexPriceBTC() {
-    try {
-      URL url = new URL("https://vircurex.com/api/get_last_trade.json?base=LTC&alt=BTC");
+      URL url = new URL("https://vircurex.com/api/get_last_trade.json?base=" + coin + "&alt=BTC");
       String json = downloadReq(url);
       if (json == null) return 0;
       JSONObject j = new JSONObject(json);
@@ -61,26 +44,9 @@ public class Downloaders {
     return 0;
   }
 
-  public static double getBtcePriceUSD() {
+  public static double getBtcePrice(String coin, String in) {
     try {
-      URL url = new URL("https://btc-e.com/api/2/ltc_usd/ticker");
-      String json = downloadReq(url);
-      if (json == null) return 0;
-      JSONObject j = new JSONObject(json);
-      JSONObject ticker = j.getJSONObject("ticker");
-      double last = ticker.getDouble("last");
-      return last;
-    } catch (MalformedURLException e) {
-      assert false;
-    } catch (JSONException e) {
-    }
-
-    return 0;
-  }
-
-  public static double getBtcePriceBTC() {
-    try {
-      URL url = new URL("https://btc-e.com/api/2/ltc_btc/ticker");
+      URL url = new URL("https://btc-e.com/api/2/" + coin + "_" + in + "/ticker");
       String json = downloadReq(url);
       if (json == null) return 0;
       JSONObject j = new JSONObject(json);

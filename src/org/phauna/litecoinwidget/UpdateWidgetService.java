@@ -27,23 +27,20 @@ import android.net.ConnectivityManager;
 
 public class UpdateWidgetService extends Service {
 
-  int mWidgetId;
-  String mExchangeId;
-
   @Override
   public void onStart(Intent intent, int startId) {
 
-    mWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-    Log.d(C.LOG, "onStart, widgetId is " + mWidgetId);
-    if (mWidgetId == -1) {
+    int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
+    Log.d(C.LOG, "onStart, widgetId is " + widgetId);
+    if (widgetId == -1) {
       stopSelf();
       return;
     }
 
     SharedPreferences prefs =
-      this.getApplicationContext().getSharedPreferences("widget" + mWidgetId, Context.MODE_PRIVATE);
+      this.getApplicationContext().getSharedPreferences("widget" + widgetId, Context.MODE_PRIVATE);
 
-    mExchangeId = prefs.getString(C.pref_key_exchange, C.EXCHANGE_VIRCUREX);
+    String exchangeId = prefs.getString(C.pref_key_exchange, C.EXCHANGE_VIRCUREX);
 
     ConnectivityManager connMgr = (ConnectivityManager)
       getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -51,7 +48,7 @@ public class UpdateWidgetService extends Service {
     if (networkInfo == null || (!networkInfo.isConnected())) {
       Log.d(C.LOG, "no internet connection");
     } else {
-      new GetPriceTask().execute();
+      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId));
     }
 
     stopSelf();
@@ -59,31 +56,46 @@ public class UpdateWidgetService extends Service {
     super.onStart(intent, startId);
   }
 
-  private class GetPriceTask extends AsyncTask<Void, Void, PriceInfo> {
+  public class PriceTaskArgs {
+    public int mWidgetId;
+    public String mExchangeId;
+    public PriceTaskArgs(int widgetId, String exchangeId) {
+      mWidgetId = widgetId;
+      mExchangeId = exchangeId;
+    }
+  }
 
-    @Override protected PriceInfo doInBackground(Void... unused) {
+  private class GetPriceTask extends AsyncTask<PriceTaskArgs, Void, PriceInfo> {
+
+    @Override protected PriceInfo doInBackground(PriceTaskArgs... args) {
       Log.d(C.LOG, "doInBackground");
-      if (mExchangeId.equals(C.EXCHANGE_VIRCUREX)) {
-        // vircurex only has BTC price
-        double priceBTC = Downloaders.getVircurexPriceBTC();
-        return new PriceInfo(mExchangeId, priceBTC, 0);
-      } else if (mExchangeId.equals(C.EXCHANGE_BTCE)) {
-        // get both prices
-        double priceBTC = Downloaders.getBtcePriceBTC();
-        double priceUSD = Downloaders.getBtcePriceUSD();
-        return new PriceInfo(mExchangeId, priceBTC, priceUSD);
-      } else if (mExchangeId.equals(C.EXCHANGE_BITFLOOR)) {
+      String eid = args[0].mExchangeId;
+      int wid = args[0].mWidgetId;
+      if (eid.equals(C.EXCHANGE_VIRCUREX)) {
+        double priceBTC = Downloaders.getVircurexPrice("LTC");
+        return new PriceInfo(eid, priceBTC, 0, wid);
+      } else if (eid.equals(C.EXCHANGE_VIRCUREX_NMC)) {
+        double priceBTC = Downloaders.getVircurexPrice("NMC");
+        return new PriceInfo(eid, priceBTC, 0, wid);
+      } else if (eid.equals(C.EXCHANGE_VIRCUREX_PPC)) {
+        double priceBTC = Downloaders.getVircurexPrice("PPC");
+        return new PriceInfo(eid, priceBTC, 0, wid);
+      } else if (eid.equals(C.EXCHANGE_BTCE)) {
+        double priceBTC = Downloaders.getBtcePrice("ltc", "btc");
+        double priceUSD = Downloaders.getBtcePrice("ltc", "usd");
+        return new PriceInfo(eid, priceBTC, priceUSD, wid);
+      } else if (eid.equals(C.EXCHANGE_BITFLOOR)) {
         double price = Downloaders.getBitfloorPriceBTCUSD();
-        return new PriceInfo(mExchangeId, 0, price);
-      } else if (mExchangeId.equals(C.EXCHANGE_BTCE_BTC)) {
-        double price = Downloaders.getBtcePriceBTCUSD();
-        return new PriceInfo(mExchangeId, 0, price);
+        return new PriceInfo(eid, 0, price, wid);
+      } else if (eid.equals(C.EXCHANGE_BTCE_BTC)) {
+        double price = Downloaders.getBtcePrice("btc", "usd");
+        return new PriceInfo(eid, 0, price, wid);
       }
       return null;
     }
 
     @Override protected void onPostExecute(PriceInfo result) {
-      Log.d(C.LOG, "in onPostExecute");
+      Log.d(C.LOG, "onPostExecute: " + result.getWidgetId());
       AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(
         UpdateWidgetService.this.getApplicationContext()
       );
@@ -96,9 +108,12 @@ public class UpdateWidgetService extends Service {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.litecoin);
       } else if (exchange.equals(C.EXCHANGE_BITFLOOR) || exchange.equals(C.EXCHANGE_BTCE_BTC)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.bitcoin);
+      } else if (exchange.equals(C.EXCHANGE_VIRCUREX_NMC)) {
+        remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.namecoin);
+      } else if (exchange.equals(C.EXCHANGE_VIRCUREX_PPC)) {
+        remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.ppcoin);
       }
-      if (exchange.equals(C.EXCHANGE_VIRCUREX)) {
-        // vircurex only has BTC price
+      if (exchange.equals(C.EXCHANGE_VIRCUREX) || exchange.equals(C.EXCHANGE_VIRCUREX_NMC) || exchange.equals(C.EXCHANGE_VIRCUREX_PPC)) {
         remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTC(result.getPriceBTC()));
         remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
         remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
@@ -127,15 +142,16 @@ public class UpdateWidgetService extends Service {
       Intent clickIntent = new Intent(UpdateWidgetService.this.getApplicationContext(),
           UpdateWidgetService.class);
       clickIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-      clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mWidgetId);
+      clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, result.getWidgetId());
       // to make the intent unique, otherwise they all wind up referencing the same intent:
-      clickIntent.setData(Uri.parse("widget:" + mWidgetId));
+      clickIntent.setData(Uri.parse("widget:" + result.getWidgetId()));
 
       PendingIntent pendingIntent = PendingIntent.getService(
           UpdateWidgetService.this.getApplicationContext(),
           0, clickIntent, PendingIntent.FLAG_ONE_SHOT);
       remoteViews.setOnClickPendingIntent(R.id.widgetframe, pendingIntent);
-      appWidgetManager.updateAppWidget(mWidgetId, remoteViews);
+      Log.d(C.LOG, "onPostExecute setting remoteviews for " + result.getWidgetId());
+      appWidgetManager.updateAppWidget(result.getWidgetId(), remoteViews);
     }
 
   }
