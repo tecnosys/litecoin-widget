@@ -3,6 +3,7 @@
  <string-array name="array_exchanges">
   <item>Vircurex (LTC)</item>
   <item>Btc-e (LTC)</item>
+  <item>Mtgox (BTC)</item>
   <item>Bitfloor (BTC)</item>
   <item>Btc-e (BTC)</item>
   <item>Vircurex (NMC)</item>
@@ -11,6 +12,7 @@
  <string-array name="array_exchange_values">
   <item>vircurex</item>
   <item>btce</item>
+  <item>mtgox</item>
   <item>bitfloor</item>
   <item>btce_btc</item>
   <item>vircurex_nmc</item>

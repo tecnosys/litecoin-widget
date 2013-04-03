@@ -90,6 +90,9 @@ public class UpdateWidgetService extends Service {
       } else if (eid.equals(C.EXCHANGE_BTCE_BTC)) {
         double price = Downloaders.getBtcePrice("btc", "usd");
         return new PriceInfo(eid, 0, price, wid);
+      } else if (eid.equals(C.EXCHANGE_MTGOX)) {
+        double price = Downloaders.getMtgoxPrice();
+        return new PriceInfo(eid, 0, price, wid);
       }
       return null;
     }
@@ -106,7 +109,7 @@ public class UpdateWidgetService extends Service {
       String exchange = result.getExchangeConfig();
       if (exchange.equals(C.EXCHANGE_VIRCUREX) || exchange.equals(C.EXCHANGE_BTCE)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.litecoin);
-      } else if (exchange.equals(C.EXCHANGE_BITFLOOR) || exchange.equals(C.EXCHANGE_BTCE_BTC)) {
+      } else if (exchange.equals(C.EXCHANGE_BITFLOOR) || exchange.equals(C.EXCHANGE_BTCE_BTC) || exchange.equals(C.EXCHANGE_MTGOX)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.bitcoin);
       } else if (exchange.equals(C.EXCHANGE_VIRCUREX_NMC)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.namecoin);
@@ -118,6 +121,7 @@ public class UpdateWidgetService extends Service {
         remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
         remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
       } else if (exchange.equals(C.EXCHANGE_VIRCUREX_PPC)) {
+        // note "roundBTCX" below
         remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTCX(result.getPriceBTC()));
         remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
         remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
@@ -126,11 +130,7 @@ public class UpdateWidgetService extends Service {
         remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
         remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
         remoteViews.setTextViewText(R.id.priceUSD, "$" + roundBTC(result.getPriceUSD()));
-      } else if (exchange.equals(C.EXCHANGE_BITFLOOR)) {
-        remoteViews.setTextViewText(R.id.priceUSD, "$" + roundUSD(result.getPriceUSD()));
-        remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
-        remoteViews.setViewVisibility(R.id.priceBTC, View.GONE);
-      } else if (exchange.equals(C.EXCHANGE_BTCE_BTC)) {
+      } else if (exchange.equals(C.EXCHANGE_BTCE_BTC) || exchange.equals(C.EXCHANGE_MTGOX) || exchange.equals(C.EXCHANGE_BITFLOOR)) {
         remoteViews.setTextViewText(R.id.priceUSD, "$" + roundUSD(result.getPriceUSD()));
         remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
         remoteViews.setViewVisibility(R.id.priceBTC, View.GONE);

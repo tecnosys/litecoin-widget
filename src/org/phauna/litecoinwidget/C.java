@@ -7,6 +7,7 @@ public class C {
   public static final String EXCHANGE_BTCE = "btce";
   public static final String EXCHANGE_BITFLOOR = "bitfloor";
   public static final String EXCHANGE_BTCE_BTC = "btce_btc";
+  public static final String EXCHANGE_MTGOX = "mtgox";
 
   public static String exchangeName(String exchange) {
     if (   exchange.equals(EXCHANGE_VIRCUREX)
@@ -17,6 +18,8 @@ public class C {
       return "Btc-e";
     } else if (exchange.equals(EXCHANGE_BITFLOOR)) {
       return "B'flr";
+    } else if (exchange.equals(EXCHANGE_MTGOX)) {
+      return "Mtgox";
     } else {
       return "???";
     }

@@ -9,6 +9,21 @@ import android.util.Log;
 
 public class Downloaders {
 
+  public static double getMtgoxPrice() {
+    try {
+      URL url = new URL("http://data.mtgox.com/api/1/BTCUSD/ticker");
+      String json = downloadReq(url);
+      if (json == null) return 0;
+      JSONObject j = new JSONObject(json);
+      double price = j.getJSONObject("return").getJSONObject("last").getDouble("value");
+      return price;
+    } catch (MalformedURLException e) {
+      assert false;
+    } catch (JSONException e) {
+    }
+    return 0;
+  }
+
   public static double getBitfloorPriceBTCUSD() {
     try {
       URL url = new URL("https://api.bitfloor.com/book/L1/1");
@@ -23,7 +38,6 @@ public class Downloaders {
       assert false;
     } catch (JSONException e) {
     }
-
     return 0;
   }
 
