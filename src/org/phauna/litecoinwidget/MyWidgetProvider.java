@@ -21,7 +21,6 @@ public class MyWidgetProvider extends AppWidgetProvider {
   public void onUpdate(Context context, AppWidgetManager appWidgetManager,
       int[] appWidgetIds) {
 
-    Log.d(C.LOG, "onUpdate method called");
     // Get all ids
     ComponentName thisWidget = new ComponentName(context,
         MyWidgetProvider.class);
@@ -29,7 +28,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
     // TODO: use appWidgetIds here instead?
     for (int widgetId : allWidgetIds) {
-      Log.d(C.LOG, "MyWidgetProvider: " + widgetId);
+      //Log.d(C.LOG, "MyWidgetProvider: " + widgetId);
 
       // Build the intent to call the service
       Intent intent = new Intent(context.getApplicationContext(),

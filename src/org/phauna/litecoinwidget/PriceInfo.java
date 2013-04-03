@@ -6,11 +6,13 @@ public class PriceInfo {
   private int mWidgetId;
   private double mPriceBTC; // only for EXCHANGE_VIRCUREX, EXCHANGE_BTCE
   private double mPriceUSD; // EXCHANGE_BTCE, EXCHANGE_BITFLOOR, EXCHANGE_BTCE_BTC
+  private boolean mEstimatedPriceUSD;
 
-  public PriceInfo(String exchangeConfig, double priceBTC, double priceUSD, int widgetId) {
+  public PriceInfo(String exchangeConfig, double priceBTC, double priceUSD, boolean estimatedPriceUSD, int widgetId) {
     mExchangeConfig = exchangeConfig;
     mPriceBTC = priceBTC;
     mPriceUSD = priceUSD;
+    mEstimatedPriceUSD = estimatedPriceUSD;
     mWidgetId = widgetId;
   }
 
@@ -28,6 +30,10 @@ public class PriceInfo {
 
   public int getWidgetId() {
     return mWidgetId;
+  }
+
+  public boolean isEstimatedPriceUSD() {
+    return mEstimatedPriceUSD;
   }
 
 }

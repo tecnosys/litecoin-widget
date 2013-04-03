@@ -27,11 +27,9 @@ import android.net.ConnectivityManager;
 
 public class UpdateWidgetService extends Service {
 
-  @Override
-  public void onStart(Intent intent, int startId) {
+  @Override public void onStart(Intent intent, int startId) {
 
     int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-    Log.d(C.LOG, "onStart, widgetId is " + widgetId);
     if (widgetId == -1) {
       stopSelf();
       return;
@@ -40,13 +38,13 @@ public class UpdateWidgetService extends Service {
     SharedPreferences prefs =
       this.getApplicationContext().getSharedPreferences("widget" + widgetId, Context.MODE_PRIVATE);
 
-    String exchangeId = prefs.getString(C.pref_key_exchange, C.EXCHANGE_VIRCUREX);
+    String exchangeId = prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC);
 
     ConnectivityManager connMgr = (ConnectivityManager)
       getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
     if (networkInfo == null || (!networkInfo.isConnected())) {
-      Log.d(C.LOG, "no internet connection");
+      Log.w(C.LOG, "no internet connection");
     } else {
       new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId));
     }
@@ -68,37 +66,44 @@ public class UpdateWidgetService extends Service {
   private class GetPriceTask extends AsyncTask<PriceTaskArgs, Void, PriceInfo> {
 
     @Override protected PriceInfo doInBackground(PriceTaskArgs... args) {
-      Log.d(C.LOG, "doInBackground");
       String eid = args[0].mExchangeId;
       int wid = args[0].mWidgetId;
-      if (eid.equals(C.EXCHANGE_VIRCUREX)) {
-        double priceBTC = Downloaders.getVircurexPrice("LTC");
-        return new PriceInfo(eid, priceBTC, 0, wid);
-      } else if (eid.equals(C.EXCHANGE_VIRCUREX_NMC)) {
-        double priceBTC = Downloaders.getVircurexPrice("NMC");
-        return new PriceInfo(eid, priceBTC, 0, wid);
-      } else if (eid.equals(C.EXCHANGE_VIRCUREX_PPC)) {
-        double priceBTC = Downloaders.getVircurexPrice("PPC");
-        return new PriceInfo(eid, priceBTC, 0, wid);
-      } else if (eid.equals(C.EXCHANGE_BTCE)) {
-        double priceBTC = Downloaders.getBtcePrice("ltc", "btc");
-        double priceUSD = Downloaders.getBtcePrice("ltc", "usd");
-        return new PriceInfo(eid, priceBTC, priceUSD, wid);
-      } else if (eid.equals(C.EXCHANGE_BITFLOOR)) {
-        double price = Downloaders.getBitfloorPriceBTCUSD();
-        return new PriceInfo(eid, 0, price, wid);
-      } else if (eid.equals(C.EXCHANGE_BTCE_BTC)) {
-        double price = Downloaders.getBtcePrice("btc", "usd");
-        return new PriceInfo(eid, 0, price, wid);
-      } else if (eid.equals(C.EXCHANGE_MTGOX)) {
-        double price = Downloaders.getMtgoxPrice();
-        return new PriceInfo(eid, 0, price, wid);
+      double priceBTC = 0;
+      double priceUSD = 0;
+      BtcPriceCache cache = new BtcPriceCache(UpdateWidgetService.this.getApplicationContext());
+      if (eid.equals(C.CFG_VREX_LTC)) {
+        priceBTC = Downloaders.getVircurexPrice("LTC");
+      } else if (eid.equals(C.CFG_VREX_NMC)) {
+        priceBTC = Downloaders.getVircurexPrice("NMC");
+      } else if (eid.equals(C.CFG_VREX_PPC)) {
+        priceBTC = Downloaders.getVircurexPrice("PPC");
+      } else if (eid.equals(C.CFG_BTCE_LTC)) {
+        priceBTC = Downloaders.getBtcePrice("ltc", "btc");
+        priceUSD = Downloaders.getBtcePrice("ltc", "usd");
+      } else if (eid.equals(C.CFG_BFLR_BTC)) {
+        priceUSD = Downloaders.getBitfloorPriceBTCUSD();
+        cache.updatePrice(eid, (float) priceUSD);
+      } else if (eid.equals(C.CFG_BTCE_BTC)) {
+        priceUSD = Downloaders.getBtcePrice("btc", "usd");
+        cache.updatePrice(eid, (float) priceUSD);
+      } else if (eid.equals(C.CFG_MGOX_BTC)) {
+        priceUSD = Downloaders.getMtgoxPrice();
+        cache.updatePrice(eid, (float) priceUSD);
       }
-      return null;
+      if (!cache.hasRecentPrice()) {
+        cache.updatePrice(C.CFG_BFLR_BTC, (float) Downloaders.getBitfloorPriceBTCUSD());
+      }
+      cache.save(UpdateWidgetService.this.getApplicationContext());
+      double mostRecentBtcPrice = cache.getPrice();
+      boolean estimatedPriceUSD = false;
+      if (priceUSD == 0) {
+        priceUSD = priceBTC * mostRecentBtcPrice;
+        estimatedPriceUSD = true;
+      }
+      return new PriceInfo(eid, priceBTC, priceUSD, estimatedPriceUSD, wid);
     }
 
     @Override protected void onPostExecute(PriceInfo result) {
-      Log.d(C.LOG, "onPostExecute: " + result.getWidgetId());
       AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(
         UpdateWidgetService.this.getApplicationContext()
       );
@@ -106,41 +111,59 @@ public class UpdateWidgetService extends Service {
         .getApplicationContext().getPackageName(),
         R.layout.widget_layout);
 
-      String exchange = result.getExchangeConfig();
-      if (exchange.equals(C.EXCHANGE_VIRCUREX) || exchange.equals(C.EXCHANGE_BTCE)) {
+      String cfg = result.getExchangeConfig();
+      if (cfg.equals(C.CFG_VREX_LTC) || cfg.equals(C.CFG_BTCE_LTC)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.litecoin);
-      } else if (exchange.equals(C.EXCHANGE_BITFLOOR) || exchange.equals(C.EXCHANGE_BTCE_BTC) || exchange.equals(C.EXCHANGE_MTGOX)) {
+      } else if (cfg.equals(C.CFG_BFLR_BTC) || cfg.equals(C.CFG_BTCE_BTC) || cfg.equals(C.CFG_MGOX_BTC)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.bitcoin);
-      } else if (exchange.equals(C.EXCHANGE_VIRCUREX_NMC)) {
+      } else if (cfg.equals(C.CFG_VREX_NMC)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.namecoin);
-      } else if (exchange.equals(C.EXCHANGE_VIRCUREX_PPC)) {
+      } else if (cfg.equals(C.CFG_VREX_PPC)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.ppcoin);
       }
-      if (exchange.equals(C.EXCHANGE_VIRCUREX) || exchange.equals(C.EXCHANGE_VIRCUREX_NMC)) {
-        remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTC(result.getPriceBTC()));
-        remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
-        remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
-      } else if (exchange.equals(C.EXCHANGE_VIRCUREX_PPC)) {
-        // note "roundBTCX" below
-        remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTCX(result.getPriceBTC()));
-        remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
-        remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
-      } else if (exchange.equals(C.EXCHANGE_BTCE)) {
-        remoteViews.setTextViewText(R.id.priceBTC, "B" + roundBTC(result.getPriceBTC()));
-        remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
-        remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
-        remoteViews.setTextViewText(R.id.priceUSD, "$" + roundBTC(result.getPriceUSD()));
-      } else if (exchange.equals(C.EXCHANGE_BTCE_BTC) || exchange.equals(C.EXCHANGE_MTGOX) || exchange.equals(C.EXCHANGE_BITFLOOR)) {
-        remoteViews.setTextViewText(R.id.priceUSD, "$" + roundUSD(result.getPriceUSD()));
-        remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
-        remoteViews.setViewVisibility(R.id.priceBTC, View.GONE);
+      double btcDouble = result.getPriceBTC();
+      double usdDouble = result.getPriceUSD();
+      // only update if we got some nonzero result:
+      if (btcDouble != 0 || usdDouble != 0) {
+        // generate a pretty BTC string (if any):
+        String btcString = "";
+        if (btcDouble != 0) {
+          if (cfg.equals(C.CFG_VREX_PPC)) {
+            btcString = "B" + roundBTCX(btcDouble);
+          } else {
+            btcString = "B" + roundBTC(btcDouble);
+          }
+        }
+        // generate a pretty USD string (if any):
+        String usdString = "";
+        if (usdDouble != 0) {
+          usdString = "$" + roundUSD(usdDouble);
+          if (result.isEstimatedPriceUSD()) {
+            usdString += "*";
+          }
+        }
+
+        if (usdString.equals("")) {
+          remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
+        } else {
+          remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
+          remoteViews.setTextViewText(R.id.priceUSD, usdString);
+        }
+
+        if (btcString.equals("")) {
+          remoteViews.setViewVisibility(R.id.priceBTC, View.GONE);
+        } else {
+          remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
+          remoteViews.setTextViewText(R.id.priceBTC, btcString);
+        }
+
+        long now = new Date().getTime();
+        String dateText = DateUtils.formatSameDayTime(
+          now, now, java.text.DateFormat.SHORT, java.text.DateFormat.SHORT
+        ).toString();
+        remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(cfg));
+        remoteViews.setTextViewText(R.id.time, dateText);
       }
-      long now = new Date().getTime();
-      String dateText = DateUtils.formatSameDayTime(
-        now, now, java.text.DateFormat.SHORT, java.text.DateFormat.SHORT
-      ).toString();
-      remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(exchange));
-      remoteViews.setTextViewText(R.id.time, dateText);
 
       // refresh when clicked
       Intent clickIntent = new Intent(UpdateWidgetService.this.getApplicationContext(),
@@ -154,24 +177,23 @@ public class UpdateWidgetService extends Service {
           UpdateWidgetService.this.getApplicationContext(),
           0, clickIntent, PendingIntent.FLAG_ONE_SHOT);
       remoteViews.setOnClickPendingIntent(R.id.widgetframe, pendingIntent);
-      Log.d(C.LOG, "onPostExecute setting remoteviews for " + result.getWidgetId());
       appWidgetManager.updateAppWidget(result.getWidgetId(), remoteViews);
     }
 
   }
 
   static String roundBTC(double d) {
-    DecimalFormat df = new DecimalFormat("#.####");
+    DecimalFormat df = new DecimalFormat("#.0000");
     return df.format(d);
   }
 
   static String roundBTCX(double d) {
-    DecimalFormat df = new DecimalFormat("#.#####");
+    DecimalFormat df = new DecimalFormat("#.00000");
     return df.format(d);
   }
 
   static String roundUSD(double d) {
-    DecimalFormat df = new DecimalFormat("#.##");
+    DecimalFormat df = new DecimalFormat("0.00");
     return df.format(d);
   }
 
