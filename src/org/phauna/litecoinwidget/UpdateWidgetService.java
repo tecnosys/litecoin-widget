@@ -16,6 +16,8 @@ import java.util.Date;
 import android.text.format.DateUtils;
 import android.content.Context;
 
+import android.net.Uri;
+
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
@@ -126,10 +128,12 @@ public class UpdateWidgetService extends Service {
           UpdateWidgetService.class);
       clickIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
       clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mWidgetId);
+      // to make the intent unique, otherwise they all wind up referencing the same intent:
+      clickIntent.setData(Uri.parse("widget:" + mWidgetId));
 
       PendingIntent pendingIntent = PendingIntent.getService(
           UpdateWidgetService.this.getApplicationContext(),
-          0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+          0, clickIntent, PendingIntent.FLAG_ONE_SHOT);
       remoteViews.setOnClickPendingIntent(R.id.widgetframe, pendingIntent);
       appWidgetManager.updateAppWidget(mWidgetId, remoteViews);
     }
