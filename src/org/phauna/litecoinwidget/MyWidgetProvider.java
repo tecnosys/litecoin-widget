@@ -21,19 +21,24 @@ public class MyWidgetProvider extends AppWidgetProvider {
   public void onUpdate(Context context, AppWidgetManager appWidgetManager,
       int[] appWidgetIds) {
 
-    Log.w(C.LOG, "onUpdate method called");
+    Log.d(C.LOG, "onUpdate method called");
     // Get all ids
     ComponentName thisWidget = new ComponentName(context,
         MyWidgetProvider.class);
     int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
 
-    // Build the intent to call the service
-    Intent intent = new Intent(context.getApplicationContext(),
-        UpdateWidgetService.class);
-    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, allWidgetIds);
+    // TODO: use appWidgetIds here instead?
+    for (int widgetId : allWidgetIds) {
+      Log.d(C.LOG, "MyWidgetProvider: " + widgetId);
 
-    // Update the widgets via the service
-    context.startService(intent);
+      // Build the intent to call the service
+      Intent intent = new Intent(context.getApplicationContext(),
+          UpdateWidgetService.class);
+      intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+
+      // Update the widget via the service
+      context.startService(intent);
+    }
 
   }
 }

@@ -13,6 +13,7 @@ public class Downloaders {
     try {
       URL url = new URL("https://api.bitfloor.com/book/L1/1");
       String json = downloadReq(url);
+      if (json == null) return 0;
       JSONObject j = new JSONObject(json);
       double bid = j.getJSONArray("bid").getDouble(0);
       double ask = j.getJSONArray("ask").getDouble(0);
@@ -30,6 +31,7 @@ public class Downloaders {
     try {
       URL url = new URL("https://btc-e.com/api/2/btc_usd/ticker");
       String json = downloadReq(url);
+      if (json == null) return 0;
       JSONObject j = new JSONObject(json);
       JSONObject ticker = j.getJSONObject("ticker");
       double last = ticker.getDouble("last");
@@ -46,6 +48,7 @@ public class Downloaders {
     try {
       URL url = new URL("https://vircurex.com/api/get_last_trade.json?base=LTC&alt=BTC");
       String json = downloadReq(url);
+      if (json == null) return 0;
       JSONObject j = new JSONObject(json);
       String priceString = j.getString("value");
       double price = Double.valueOf(priceString);
@@ -62,6 +65,7 @@ public class Downloaders {
     try {
       URL url = new URL("https://btc-e.com/api/2/ltc_usd/ticker");
       String json = downloadReq(url);
+      if (json == null) return 0;
       JSONObject j = new JSONObject(json);
       JSONObject ticker = j.getJSONObject("ticker");
       double last = ticker.getDouble("last");
@@ -78,6 +82,7 @@ public class Downloaders {
     try {
       URL url = new URL("https://btc-e.com/api/2/ltc_btc/ticker");
       String json = downloadReq(url);
+      if (json == null) return 0;
       JSONObject j = new JSONObject(json);
       JSONObject ticker = j.getJSONObject("ticker");
       double last = ticker.getDouble("last");

@@ -66,8 +66,7 @@ public class MainActivity extends PreferenceActivity implements
       // manually call the service once (might be able to do it with a broadcast alternatively..)
       Intent intent = new Intent(getApplicationContext(),
           UpdateWidgetService.class);
-      int[] widgetIds = { mAppWidgetId };
-      intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
+      intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
       // Update the widgets via the service
       startService(intent);
 
