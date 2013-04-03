@@ -28,7 +28,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
     int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
 
     // TODO: use appWidgetIds here instead?
-    for (int widgetId : allWidgetIds) {
+    for (int widgetId : appWidgetIds) {
       Log.d(C.LOG, "MyWidgetProvider: " + widgetId);
 
       // Build the intent to call the service

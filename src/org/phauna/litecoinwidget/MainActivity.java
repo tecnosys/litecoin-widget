@@ -67,7 +67,7 @@ public class MainActivity extends PreferenceActivity implements
       Intent intent = new Intent(getApplicationContext(),
           UpdateWidgetService.class);
       intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-      // Update the widgets via the service
+      // Update the widget via the service
       startService(intent);
 
       // why do I need to put the extraAppWidgetID?

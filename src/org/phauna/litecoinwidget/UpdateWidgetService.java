@@ -127,7 +127,6 @@ public class UpdateWidgetService extends Service {
       clickIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
       clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mWidgetId);
 
-      // update ALL widgets at once when you click
       PendingIntent pendingIntent = PendingIntent.getService(
           UpdateWidgetService.this.getApplicationContext(),
           0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
