@@ -1,5 +1,7 @@
 package org.phauna.litecoinwidget;
 
+import java.util.Currency;
+
 public class C {
   public static final String CFG_VREX_LTC = "vircurex";
   public static final String CFG_VREX_NMC = "vircurex_nmc";
@@ -29,6 +31,17 @@ public class C {
   public static final String pref_key_rate_price    = "pref_key_rate_price";
   public static final String pref_key_rate_date     = "pref_key_rate_date";
   public static final String pref_key_rate_exchange = "pref_key_rate_exchange";
+  public static final String pref_key_owc = "pref_key_owc";
+  public static final String pref_key_done = "pref_key_done";
 
   public static final String LOG = "org.phauna.litecoinwidget";
+
+  public static final String USD = "USD";
+  public static final String EUR = "EUR";
+  public static final String GBP = "GBP";
+  public static final String JPY = "JPY";
+
+  public static String currencySymbol(String c) {
+    return Currency.getInstance(c).getSymbol();
+  }
 }

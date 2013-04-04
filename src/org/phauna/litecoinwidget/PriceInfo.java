@@ -4,15 +4,17 @@ public class PriceInfo {
 
   private String mExchangeConfig;
   private int mWidgetId;
-  private double mPriceBTC; // only for EXCHANGE_VIRCUREX, EXCHANGE_BTCE
-  private double mPriceUSD; // EXCHANGE_BTCE, EXCHANGE_BITFLOOR, EXCHANGE_BTCE_BTC
-  private boolean mEstimatedPriceUSD;
+  private double mPriceBTC;
+  private String mOwc;
+  private double mPriceOWC;
+  private boolean mEstimatedPriceOWC;
 
-  public PriceInfo(String exchangeConfig, double priceBTC, double priceUSD, boolean estimatedPriceUSD, int widgetId) {
+  public PriceInfo(String exchangeConfig, double priceBTC, String owc, double priceOWC, boolean estimatedPriceOWC, int widgetId) {
     mExchangeConfig = exchangeConfig;
     mPriceBTC = priceBTC;
-    mPriceUSD = priceUSD;
-    mEstimatedPriceUSD = estimatedPriceUSD;
+    mOwc = owc;
+    mPriceOWC = priceOWC;
+    mEstimatedPriceOWC = estimatedPriceOWC;
     mWidgetId = widgetId;
   }
 
@@ -20,20 +22,24 @@ public class PriceInfo {
     return mExchangeConfig;
   }
 
+  public String getOWC() {
+    return mOwc;
+  }
+
   public double getPriceBTC() {
     return mPriceBTC;
   }
 
-  public double getPriceUSD() {
-    return mPriceUSD;
+  public double getPriceOWC() {
+    return mPriceOWC;
   }
 
   public int getWidgetId() {
     return mWidgetId;
   }
 
-  public boolean isEstimatedPriceUSD() {
-    return mEstimatedPriceUSD;
+  public boolean isEstimatedPriceOWC() {
+    return mEstimatedPriceOWC;
   }
 
 }

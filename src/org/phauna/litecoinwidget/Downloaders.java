@@ -5,9 +5,66 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.Date;
 import android.util.Log;
 
 public class Downloaders {
+
+  public static HashMap<String, ExchangeRateEntry> currencyExchangeCache = new HashMap();
+
+  public static double getCachedExchangeRate(String from, String to) {
+    String cPair = from + to;
+    ExchangeRateEntry e = currencyExchangeCache.get(cPair);
+    Date now = new Date();
+    if (e == null) {
+      Log.d(C.LOG, "no cached rate found for " + from + to);
+    }
+    if (e == null || now.getTime() - e.mDate.getTime() > 1000 * 60 * 60) { // 1 hour
+      // refresh it
+      double newRate = getCurrencyExchangeRate(from, to);
+      Log.d(C.LOG, "got rate " + newRate + " for " + cPair);
+      if (newRate == -1) {
+        // don't save bad result. instead, return old stale result if possible
+        if (e == null) return -1;
+        return e.mRate;
+      }
+      Log.d(C.LOG, "caching rate " + newRate + " for " + cPair);
+      ExchangeRateEntry newEntry = new ExchangeRateEntry(newRate, now);
+      currencyExchangeCache.put(cPair, newEntry);
+      return newRate;
+    }
+    return e.mRate;
+  }
+
+
+  public static class ExchangeRateEntry {
+    public double mRate;
+    public Date mDate;
+    public ExchangeRateEntry(double rate, Date date) {
+      mRate = rate;
+      mDate = date;
+    }
+  }
+
+  public static double getCurrencyExchangeRate(String from, String to) {
+    from = from.toUpperCase();
+    to = to.toUpperCase();
+    try {
+      URL url = new URL("http://rate-exchange.appspot.com/currency?from=" + from + "&to=" + to);
+      String json = downloadReq(url);
+      if (json == null) return 0;
+      JSONObject j = new JSONObject(json);
+      Log.d(C.LOG, "got json: " + j.toString());
+      double price = j.getDouble("rate");
+      return price;
+    } catch (MalformedURLException e) {
+      assert false;
+    } catch (JSONException e) {
+      Log.w(C.LOG, "json exception parsing rate: " + e.toString());
+    }
+    return -1;
+  }
 
   public static double getMtgoxPrice() {
     try {

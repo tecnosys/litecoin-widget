@@ -9,5 +9,17 @@
    android:summary="@string/pref_summary_exchange"
    android:entries="@array/array_exchanges"
    android:entryValues="@array/array_exchange_values" />
+ <ListPreference
+   android:title="@string/pref_owc"
+   android:key="pref_key_owc"
+   android:summary="@string/pref_summary_owc"
+   android:entries="@array/array_owc_names"
+   android:entryValues="@array/array_owc_values"
+   android:defaultValue="USD"
+ />
+ <CheckBoxPreference
+   android:title="@string/pref_done"
+   android:key="pref_key_done"
+ />
  </PreferenceCategory>
 </PreferenceScreen>

@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.CheckBoxPreference;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.SharedPreferences.Editor;
@@ -58,16 +59,27 @@ public class MainActivity extends PreferenceActivity implements
     manager.setSharedPreferencesName(prefsName);
     mPrefs = manager.getSharedPreferences();
 
-    Log.d(C.LOG, "opening mainactivity for widget id " + mAppWidgetId);
   }
 
   public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
     if (key.equals(C.pref_key_exchange)) {
-      // manually call the service once (might be able to do it with a broadcast alternatively..)
-      Intent intent = new Intent(getApplicationContext(),
-          UpdateWidgetService.class);
-      intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+      String exchange = prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC);
+      Preference ePref = findPreference(C.pref_key_exchange);
+      ePref.setSummary(exchange);
+    }
+    if (key.equals(C.pref_key_owc)) {
+      String owc = prefs.getString(C.pref_key_owc, C.USD);
+      Preference ePref = findPreference(C.pref_key_owc);
+      ePref.setSummary(owc);
+    }
+    if (key.equals(C.pref_key_done)) {
       // Update the widget via the service
+      Intent intent = new Intent(getApplicationContext(), UpdateWidgetService.class);
+      intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+      // put the preferences directly, because they haven't necessarily committed
+      // yet when I want to run service to update the widget for the first time:
+      intent.putExtra(C.pref_key_exchange, prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC));
+      intent.putExtra(C.pref_key_owc, prefs.getString(C.pref_key_owc, C.USD));
       startService(intent);
 
       // why do I need to put the extraAppWidgetID?

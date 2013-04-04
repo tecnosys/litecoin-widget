@@ -38,7 +38,14 @@ public class UpdateWidgetService extends Service {
     SharedPreferences prefs =
       this.getApplicationContext().getSharedPreferences("widget" + widgetId, Context.MODE_PRIVATE);
 
-    String exchangeId = prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC);
+    String exchangeId = intent.getStringExtra(C.pref_key_exchange);
+    if (exchangeId == null) {
+      exchangeId = prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC);
+    }
+    String oldWorldCurrency = intent.getStringExtra(C.pref_key_owc);
+    if (oldWorldCurrency == null) {
+      oldWorldCurrency = prefs.getString(C.pref_key_owc, C.USD);
+    }
 
     ConnectivityManager connMgr = (ConnectivityManager)
       getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -46,7 +53,7 @@ public class UpdateWidgetService extends Service {
     if (networkInfo == null || (!networkInfo.isConnected())) {
       Log.w(C.LOG, "no internet connection");
     } else {
-      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId));
+      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, oldWorldCurrency));
     }
 
     stopSelf();
@@ -57,9 +64,11 @@ public class UpdateWidgetService extends Service {
   public class PriceTaskArgs {
     public int mWidgetId;
     public String mExchangeId;
-    public PriceTaskArgs(int widgetId, String exchangeId) {
+    public String mOldWorldCurrency;
+    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency) {
       mWidgetId = widgetId;
       mExchangeId = exchangeId;
+      mOldWorldCurrency = oldWorldCurrency;
     }
   }
 
@@ -68,6 +77,7 @@ public class UpdateWidgetService extends Service {
     @Override protected PriceInfo doInBackground(PriceTaskArgs... args) {
       String eid = args[0].mExchangeId;
       int wid = args[0].mWidgetId;
+      String owc = args[0].mOldWorldCurrency;
       double priceBTC = 0;
       double priceUSD = 0;
       BtcPriceCache cache = new BtcPriceCache(UpdateWidgetService.this.getApplicationContext());
@@ -95,12 +105,17 @@ public class UpdateWidgetService extends Service {
       }
       cache.save(UpdateWidgetService.this.getApplicationContext());
       double mostRecentBtcPrice = cache.getPrice();
-      boolean estimatedPriceUSD = false;
+      boolean estimatedPriceOWC = false;
       if (priceUSD == 0) {
         priceUSD = priceBTC * mostRecentBtcPrice;
-        estimatedPriceUSD = true;
+        estimatedPriceOWC = true;
       }
-      return new PriceInfo(eid, priceBTC, priceUSD, estimatedPriceUSD, wid);
+      double priceOWC = priceUSD;
+      if (!owc.equals(C.USD)) {
+        priceOWC = convertFromUSD(priceOWC, owc);
+        estimatedPriceOWC = true;
+      }
+      return new PriceInfo(eid, priceBTC, owc, priceOWC, estimatedPriceOWC, wid);
     }
 
     @Override protected void onPostExecute(PriceInfo result) {
@@ -122,9 +137,9 @@ public class UpdateWidgetService extends Service {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.ppcoin);
       }
       double btcDouble = result.getPriceBTC();
-      double usdDouble = result.getPriceUSD();
+      double owcDouble = result.getPriceOWC();
       // only update if we got some nonzero result:
-      if (btcDouble != 0 || usdDouble != 0) {
+      if (btcDouble != 0 || owcDouble != 0) {
         // generate a pretty BTC string (if any):
         String btcString = "";
         if (btcDouble != 0) {
@@ -135,19 +150,19 @@ public class UpdateWidgetService extends Service {
           }
         }
         // generate a pretty USD string (if any):
-        String usdString = "";
-        if (usdDouble != 0) {
-          usdString = "$" + roundUSD(usdDouble);
-          if (result.isEstimatedPriceUSD()) {
-            usdString += "*";
+        String owcString = "";
+        if (owcDouble != 0) {
+          owcString = C.currencySymbol(result.getOWC()) + roundOWC(owcDouble);
+          if (result.isEstimatedPriceOWC()) {
+            owcString += "*";
           }
         }
 
-        if (usdString.equals("")) {
-          remoteViews.setViewVisibility(R.id.priceUSD, View.GONE);
+        if (owcString.equals("")) {
+          remoteViews.setViewVisibility(R.id.priceOWC, View.GONE);
         } else {
-          remoteViews.setViewVisibility(R.id.priceUSD, View.VISIBLE);
-          remoteViews.setTextViewText(R.id.priceUSD, usdString);
+          remoteViews.setViewVisibility(R.id.priceOWC, View.VISIBLE);
+          remoteViews.setTextViewText(R.id.priceOWC, owcString);
         }
 
         if (btcString.equals("")) {
@@ -182,6 +197,14 @@ public class UpdateWidgetService extends Service {
 
   }
 
+  static double convertFromUSD(double priceUSD, String toCurrency) {
+    double rate = Downloaders.getCachedExchangeRate(C.USD, toCurrency);
+    if (rate == -1) {
+      return 0;
+    }
+    return (priceUSD * rate);
+  }
+
   static String roundBTC(double d) {
     DecimalFormat df = new DecimalFormat("#.0000");
     return df.format(d);
@@ -192,7 +215,7 @@ public class UpdateWidgetService extends Service {
     return df.format(d);
   }
 
-  static String roundUSD(double d) {
+  static String roundOWC(double d) {
     DecimalFormat df = new DecimalFormat("0.00");
     return df.format(d);
   }
