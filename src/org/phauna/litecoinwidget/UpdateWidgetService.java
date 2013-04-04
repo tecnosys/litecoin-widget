@@ -46,6 +46,11 @@ public class UpdateWidgetService extends Service {
     if (oldWorldCurrency == null) {
       oldWorldCurrency = prefs.getString(C.pref_key_owc, C.USD);
     }
+    String colorString = intent.getStringExtra(C.pref_key_color);
+    if (colorString == null) {
+      colorString = prefs.getString(C.pref_key_color, "light_grey");
+    }
+    int color = C.getColor(colorString);
 
     ConnectivityManager connMgr = (ConnectivityManager)
       getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -53,7 +58,7 @@ public class UpdateWidgetService extends Service {
     if (networkInfo == null || (!networkInfo.isConnected())) {
       Log.w(C.LOG, "no internet connection");
     } else {
-      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, oldWorldCurrency));
+      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, oldWorldCurrency, color));
     }
 
     stopSelf();
@@ -65,10 +70,12 @@ public class UpdateWidgetService extends Service {
     public int mWidgetId;
     public String mExchangeId;
     public String mOldWorldCurrency;
-    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency) {
+    public int mColor;
+    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency, int color) {
       mWidgetId = widgetId;
       mExchangeId = exchangeId;
       mOldWorldCurrency = oldWorldCurrency;
+      mColor = color;
     }
   }
 
@@ -115,7 +122,7 @@ public class UpdateWidgetService extends Service {
         priceOWC = convertFromUSD(priceOWC, owc);
         estimatedPriceOWC = true;
       }
-      return new PriceInfo(eid, priceBTC, owc, priceOWC, estimatedPriceOWC, wid);
+      return new PriceInfo(eid, priceBTC, owc, priceOWC, estimatedPriceOWC, wid, args[0].mColor);
     }
 
     @Override protected void onPostExecute(PriceInfo result) {
@@ -176,9 +183,15 @@ public class UpdateWidgetService extends Service {
         String dateText = DateUtils.formatSameDayTime(
           now, now, java.text.DateFormat.SHORT, java.text.DateFormat.SHORT
         ).toString();
-        remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(cfg));
         remoteViews.setTextViewText(R.id.time, dateText);
       }
+      remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(cfg));
+      // set text colors:
+      int color = result.getColor();
+      remoteViews.setTextColor(R.id.exchange_name, color);
+      remoteViews.setTextColor(R.id.priceBTC, color);
+      remoteViews.setTextColor(R.id.priceOWC, color);
+      remoteViews.setTextColor(R.id.time, color);
 
       // refresh when clicked
       Intent clickIntent = new Intent(UpdateWidgetService.this.getApplicationContext(),

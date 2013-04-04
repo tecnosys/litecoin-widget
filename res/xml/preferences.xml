@@ -17,6 +17,13 @@
    android:entryValues="@array/array_owc_values"
    android:defaultValue="USD"
  />
+ <ListPreference
+   android:title="@string/pref_color"
+   android:key="pref_key_color"
+   android:entries="@array/array_color_names"
+   android:entryValues="@array/array_color_values"
+   android:defaultValue="ltg"
+ />
  <CheckBoxPreference
    android:title="@string/pref_done"
    android:key="pref_key_done"

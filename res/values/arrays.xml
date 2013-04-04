@@ -39,4 +39,15 @@
    <item>AUD</item>
    <item>RUR</item>
  </string-array>
+
+ <string-array name="array_color_names">
+   <item>light grey</item>
+   <item>dark blue</item>
+   <item>green</item>
+ </string-array>
+ <string-array name="array_color_values">
+   <item>light_grey</item>
+   <item>dark_blue</item>
+   <item>green</item>
+ </string-array>
 </resources>

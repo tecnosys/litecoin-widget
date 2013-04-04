@@ -72,6 +72,11 @@ public class MainActivity extends PreferenceActivity implements
       Preference ePref = findPreference(C.pref_key_owc);
       ePref.setSummary(owc);
     }
+    if (key.equals(C.pref_key_color)) {
+      String color = prefs.getString(C.pref_key_color, "light_grey");
+      Preference ePref = findPreference(C.pref_key_color);
+      ePref.setSummary(color);
+    }
     if (key.equals(C.pref_key_done)) {
       // Update the widget via the service
       Intent intent = new Intent(getApplicationContext(), UpdateWidgetService.class);
@@ -80,6 +85,7 @@ public class MainActivity extends PreferenceActivity implements
       // yet when I want to run service to update the widget for the first time:
       intent.putExtra(C.pref_key_exchange, prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC));
       intent.putExtra(C.pref_key_owc, prefs.getString(C.pref_key_owc, C.USD));
+      intent.putExtra(C.pref_key_color, prefs.getString(C.pref_key_color, "light_grey"));
       startService(intent);
 
       // why do I need to put the extraAppWidgetID?

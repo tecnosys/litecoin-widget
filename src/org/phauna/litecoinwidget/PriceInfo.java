@@ -8,14 +8,16 @@ public class PriceInfo {
   private String mOwc;
   private double mPriceOWC;
   private boolean mEstimatedPriceOWC;
+  private int mColor;
 
-  public PriceInfo(String exchangeConfig, double priceBTC, String owc, double priceOWC, boolean estimatedPriceOWC, int widgetId) {
+  public PriceInfo(String exchangeConfig, double priceBTC, String owc, double priceOWC, boolean estimatedPriceOWC, int widgetId, int color) {
     mExchangeConfig = exchangeConfig;
     mPriceBTC = priceBTC;
     mOwc = owc;
     mPriceOWC = priceOWC;
     mEstimatedPriceOWC = estimatedPriceOWC;
     mWidgetId = widgetId;
+    mColor = color;
   }
 
   public String getExchangeConfig() {
@@ -40,6 +42,10 @@ public class PriceInfo {
 
   public boolean isEstimatedPriceOWC() {
     return mEstimatedPriceOWC;
+  }
+
+  public int getColor() {
+    return mColor;
   }
 
 }

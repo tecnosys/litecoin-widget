@@ -2,7 +2,7 @@
 <resources>
  <string name="app_name">Litecoin Widget</string>
 
- <string name="pref_category_data">Data source</string>
+ <string name="pref_category_data">Settings</string>
 
  <string name="pref_exchange">Exchange and Coin</string>
  <string name="pref_summary_exchange">select an exchange and coin</string>
@@ -10,7 +10,9 @@
  <string name="pref_owc">Old World Currency</string>
  <string name="pref_summary_owc">for displaying estimates (default: USD)</string>
 
- <string name="pref_done">done</string>
+ <string name="pref_color">Text Color</string>
+
+ <string name="pref_done">LET\'S GO ALREADY!</string>
 
  <string name="button_go">go</string>
 </resources>
