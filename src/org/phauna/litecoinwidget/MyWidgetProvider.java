@@ -26,7 +26,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
         MyWidgetProvider.class);
     int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
 
-    // TODO: use appWidgetIds here instead?
+    // use appWidgetIds here instead?
     for (int widgetId : allWidgetIds) {
       //Log.d(C.LOG, "MyWidgetProvider: " + widgetId);
 

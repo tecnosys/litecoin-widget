@@ -15,6 +15,7 @@ import android.graphics.Color;
 import java.util.Date;
 import android.text.format.DateUtils;
 import android.content.Context;
+import android.widget.Toast;
 
 import android.net.Uri;
 
@@ -79,7 +80,18 @@ public class UpdateWidgetService extends Service {
     }
   }
 
-  private class GetPriceTask extends AsyncTask<PriceTaskArgs, Void, PriceInfo> {
+  public class GetPriceTask extends AsyncTask<PriceTaskArgs, Toasty, PriceInfo> {
+
+    public class Toaster {
+      public void toast(Toasty msg) {
+        publishProgress(msg);
+      }
+    }
+
+    @Override protected void onProgressUpdate(Toasty... msg) {
+      Toasty ty = msg[0];
+      Toast.makeText(UpdateWidgetService.this.getApplicationContext(), ty.mMsg, ty.mLength).show();
+    }
 
     @Override protected PriceInfo doInBackground(PriceTaskArgs... args) {
       String eid = args[0].mExchangeId;
@@ -87,28 +99,29 @@ public class UpdateWidgetService extends Service {
       String owc = args[0].mOldWorldCurrency;
       double priceBTC = 0;
       double priceUSD = 0;
+      Downloaders downloaders = new Downloaders(new Toaster());
       BtcPriceCache cache = new BtcPriceCache(UpdateWidgetService.this.getApplicationContext());
       if (eid.equals(C.CFG_VREX_LTC)) {
-        priceBTC = Downloaders.getVircurexPrice("LTC");
+        priceBTC = downloaders.getVircurexPrice("LTC");
       } else if (eid.equals(C.CFG_VREX_NMC)) {
-        priceBTC = Downloaders.getVircurexPrice("NMC");
+        priceBTC = downloaders.getVircurexPrice("NMC");
       } else if (eid.equals(C.CFG_VREX_PPC)) {
-        priceBTC = Downloaders.getVircurexPrice("PPC");
+        priceBTC = downloaders.getVircurexPrice("PPC");
       } else if (eid.equals(C.CFG_BTCE_LTC)) {
-        priceBTC = Downloaders.getBtcePrice("ltc", "btc");
-        priceUSD = Downloaders.getBtcePrice("ltc", "usd");
+        priceBTC = downloaders.getBtcePrice("ltc", "btc");
+        priceUSD = downloaders.getBtcePrice("ltc", "usd");
       } else if (eid.equals(C.CFG_BFLR_BTC)) {
-        priceUSD = Downloaders.getBitfloorPriceBTCUSD();
+        priceUSD = downloaders.getBitfloorPriceBTCUSD();
         cache.updatePrice(eid, (float) priceUSD);
       } else if (eid.equals(C.CFG_BTCE_BTC)) {
-        priceUSD = Downloaders.getBtcePrice("btc", "usd");
+        priceUSD = downloaders.getBtcePrice("btc", "usd");
         cache.updatePrice(eid, (float) priceUSD);
       } else if (eid.equals(C.CFG_MGOX_BTC)) {
-        priceUSD = Downloaders.getMtgoxPrice();
+        priceUSD = downloaders.getMtgoxPrice();
         cache.updatePrice(eid, (float) priceUSD);
       }
       if (!cache.hasRecentPrice()) {
-        cache.updatePrice(C.CFG_BFLR_BTC, (float) Downloaders.getBitfloorPriceBTCUSD());
+        cache.updatePrice(C.CFG_BFLR_BTC, (float) downloaders.getBitfloorPriceBTCUSD());
       }
       cache.save(UpdateWidgetService.this.getApplicationContext());
       double mostRecentBtcPrice = cache.getPrice();
@@ -119,7 +132,7 @@ public class UpdateWidgetService extends Service {
       }
       double priceOWC = priceUSD;
       if (!owc.equals(C.USD)) {
-        priceOWC = convertFromUSD(priceOWC, owc);
+        priceOWC = convertFromUSD(downloaders, priceOWC, owc);
         estimatedPriceOWC = true;
       }
       return new PriceInfo(eid, priceBTC, owc, priceOWC, estimatedPriceOWC, wid, args[0].mColor);
@@ -210,8 +223,8 @@ public class UpdateWidgetService extends Service {
 
   }
 
-  static double convertFromUSD(double priceUSD, String toCurrency) {
-    double rate = Downloaders.getCachedExchangeRate(C.USD, toCurrency);
+  static double convertFromUSD(Downloaders downloaders, double priceUSD, String toCurrency) {
+    double rate = downloaders.getCachedExchangeRate(C.USD, toCurrency);
     if (rate == -1) {
       return 0;
     }
