@@ -12,6 +12,7 @@ public class C {
   public static final String CFG_BTCE_BTC = "btce_btc";
   public static final String CFG_BTCE_NMC = "btce_nmc";
   public static final String CFG_BTCE_PPC = "btce_ppc";
+  public static final String CFG_INVALID  = "invalid";
 
   public static String exchangeName(String exchange) {
     if (   exchange.equals(CFG_VREX_LTC)

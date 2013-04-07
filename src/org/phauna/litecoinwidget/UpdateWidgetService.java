@@ -41,7 +41,11 @@ public class UpdateWidgetService extends Service {
 
     String exchangeId = intent.getStringExtra(C.pref_key_exchange);
     if (exchangeId == null) {
-      exchangeId = prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC);
+      exchangeId = prefs.getString(C.pref_key_exchange, C.CFG_INVALID);
+      if (exchangeId.equals(C.CFG_INVALID)) {
+        stopSelf();
+        return;
+      }
     }
     String oldWorldCurrency = intent.getStringExtra(C.pref_key_owc);
     if (oldWorldCurrency == null) {
