@@ -3,20 +3,25 @@ package org.phauna.litecoinwidget;
 import java.util.Currency;
 
 public class C {
-  public static final String CFG_VREX_LTC = "vircurex";
+  public static final String CFG_VREX_LTC = "vircurex_ltc";
   public static final String CFG_VREX_NMC = "vircurex_nmc";
   public static final String CFG_VREX_PPC = "vircurex_ppc";
-  public static final String CFG_BTCE_LTC = "btce";
+  public static final String CFG_BFLR_BTC = "bitfloor_btc";
+  public static final String CFG_MGOX_BTC = "mtgox_btc";
+  public static final String CFG_BTCE_LTC = "btce_ltc";
   public static final String CFG_BTCE_BTC = "btce_btc";
-  public static final String CFG_BFLR_BTC = "bitfloor";
-  public static final String CFG_MGOX_BTC = "mtgox";
+  public static final String CFG_BTCE_NMC = "btce_nmc";
+  public static final String CFG_BTCE_PPC = "btce_ppc";
 
   public static String exchangeName(String exchange) {
     if (   exchange.equals(CFG_VREX_LTC)
         || exchange.equals(CFG_VREX_NMC)
         || exchange.equals(CFG_VREX_PPC)) {
       return "V'rex";
-    } else if (exchange.equals(CFG_BTCE_LTC) || exchange.equals(CFG_BTCE_BTC)) {
+    } else if (exchange.equals(CFG_BTCE_LTC)
+            || exchange.equals(CFG_BTCE_BTC)
+            || exchange.equals(CFG_BTCE_NMC)
+            || exchange.equals(CFG_BTCE_PPC)) {
       return "Btc-e";
     } else if (exchange.equals(CFG_BFLR_BTC)) {
       return "B'flr";
