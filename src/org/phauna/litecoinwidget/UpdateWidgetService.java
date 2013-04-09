@@ -212,8 +212,8 @@ public class UpdateWidgetService extends Service {
           // to make nice even spacing, put a blank space in for the BTC
           // price when there is none.
           btcString = " ";
-          remoteViews.setTextViewText(R.id.priceBTC, btcString);
         }
+        remoteViews.setTextViewText(R.id.priceBTC, btcString);
 
         long now = new Date().getTime();
         String dateText = DateUtils.formatSameDayTime(
