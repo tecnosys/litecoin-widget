@@ -209,9 +209,9 @@ public class UpdateWidgetService extends Service {
         }
 
         if (btcString.equals("")) {
-          remoteViews.setViewVisibility(R.id.priceBTC, View.GONE);
-        } else {
-          remoteViews.setViewVisibility(R.id.priceBTC, View.VISIBLE);
+          // to make nice even spacing, put a blank space in for the BTC
+          // price when there is none.
+          btcString = " ";
           remoteViews.setTextViewText(R.id.priceBTC, btcString);
         }
 
