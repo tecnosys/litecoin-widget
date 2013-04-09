@@ -73,4 +73,14 @@ public class C {
     }
   }
 
+  public static int getLayoutID(String transLevel) {
+    int layout_id = R.layout.widget_layout_two;
+    if (transLevel.equals(C.TRANS_HIGH)) {
+      layout_id = R.layout.widget_layout_one;
+    } else if (transLevel.equals(C.TRANS_LOW)) {
+      layout_id = R.layout.widget_layout_three;
+    }
+    return layout_id;
+  }
+
 }

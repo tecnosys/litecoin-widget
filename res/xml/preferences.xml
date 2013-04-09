@@ -22,14 +22,16 @@
    android:key="pref_key_color"
    android:entries="@array/array_color_names"
    android:entryValues="@array/array_color_values"
-   android:defaultValue="ltg"
+   android:summary="light_grey"
+   android:defaultValue="light_grey"
  />
  <ListPreference
    android:title="@string/pref_trans"
    android:key="pref_key_trans"
    android:entries="@array/array_trans_names"
    android:entryValues="@array/array_trans_values"
-   android:defaultValue="ltg"
+   android:summary="medium"
+   android:defaultValue="medium"
  />
  <CheckBoxPreference
    android:title="@string/pref_done"

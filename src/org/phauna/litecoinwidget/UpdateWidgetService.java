@@ -65,8 +65,14 @@ public class UpdateWidgetService extends Service {
       getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
     if (networkInfo == null || (!networkInfo.isConnected())) {
-      Log.w(C.LOG, "no internet connection");
+      Toast.makeText(this.getApplicationContext(), "no network connection", Toast.LENGTH_SHORT).show();
+      int layout_id = C.getLayoutID(transparencyLevel);
+      RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
+        .getApplicationContext().getPackageName(),
+        layout_id);
+      refreshWhenClicked(widgetId, remoteViews);
     } else {
+      Toast.makeText(this.getApplicationContext(), "refreshing..", Toast.LENGTH_SHORT).show();
       // it sure would be nice to have an easier way than passing all this shite through here.
       // BUT there appear to be concurrency issues with using fields.
       new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, oldWorldCurrency, color, transparencyLevel));
@@ -155,16 +161,7 @@ public class UpdateWidgetService extends Service {
     }
 
     @Override protected void onPostExecute(PriceInfo result) {
-      AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(
-        UpdateWidgetService.this.getApplicationContext()
-      );
-      int layout_id = R.layout.widget_layout_two;
-      String transLevel = result.getTransparencyLevel();
-      if (transLevel.equals(C.TRANS_HIGH)) {
-        layout_id = R.layout.widget_layout_one;
-      } else if (transLevel.equals(C.TRANS_LOW)) {
-        layout_id = R.layout.widget_layout_three;
-      }
+      int layout_id = C.getLayoutID(result.getTransparencyLevel());
       RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
         .getApplicationContext().getPackageName(),
         layout_id);
@@ -229,21 +226,28 @@ public class UpdateWidgetService extends Service {
       remoteViews.setTextColor(R.id.priceOWC, color);
       remoteViews.setTextColor(R.id.time, color);
 
-      // refresh when clicked
-      Intent clickIntent = new Intent(UpdateWidgetService.this.getApplicationContext(),
-          UpdateWidgetService.class);
-      clickIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-      clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, result.getWidgetId());
-      // to make the intent unique, otherwise they all wind up referencing the same intent:
-      clickIntent.setData(Uri.parse("widget:" + result.getWidgetId()));
+      refreshWhenClicked(result.getWidgetId(), remoteViews);
 
-      PendingIntent pendingIntent = PendingIntent.getService(
-          UpdateWidgetService.this.getApplicationContext(),
-          0, clickIntent, PendingIntent.FLAG_ONE_SHOT);
-      remoteViews.setOnClickPendingIntent(R.id.widgetframe, pendingIntent);
-      appWidgetManager.updateAppWidget(result.getWidgetId(), remoteViews);
     }
 
+  }
+
+  void refreshWhenClicked(int widgetId, RemoteViews remoteViews) {
+    Intent clickIntent = new Intent(this.getApplicationContext(),
+        UpdateWidgetService.class);
+    clickIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+    clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+    // to make the intent unique, otherwise they all wind up referencing the same intent:
+    clickIntent.setData(Uri.parse("widget:" + widgetId));
+
+    PendingIntent pendingIntent = PendingIntent.getService(
+        UpdateWidgetService.this.getApplicationContext(),
+        0, clickIntent, PendingIntent.FLAG_ONE_SHOT);
+    remoteViews.setOnClickPendingIntent(R.id.widgetframe, pendingIntent);
+    AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(
+      UpdateWidgetService.this.getApplicationContext()
+    );
+    appWidgetManager.updateAppWidget(widgetId, remoteViews);
   }
 
   static double convertFromUSD(Downloaders downloaders, double priceUSD, String toCurrency) {
