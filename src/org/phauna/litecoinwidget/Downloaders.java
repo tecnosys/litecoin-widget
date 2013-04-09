@@ -176,6 +176,8 @@ public class Downloaders {
     OutputStream out = null;
     HttpURLConnection conn = null;
 
+    System.setProperty("http.keepAlive", "false");
+
     try {
 
       if (url.getProtocol().toLowerCase().equals("https")) {
