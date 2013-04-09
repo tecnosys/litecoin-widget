@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:padding="0dip"
     android:layout_margin="2dip"
-    android:background="@drawable/widget_rectangle_two"
+    android:background="@drawable/widget_rectangle_one"
     >
 
  <TextView

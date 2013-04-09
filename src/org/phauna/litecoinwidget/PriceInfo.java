@@ -9,8 +9,9 @@ public class PriceInfo {
   private double mPriceOWC;
   private boolean mEstimatedPriceOWC;
   private int mColor;
+  private String mTransparencyLevel;
 
-  public PriceInfo(String exchangeConfig, double priceBTC, String owc, double priceOWC, boolean estimatedPriceOWC, int widgetId, int color) {
+  public PriceInfo(String exchangeConfig, double priceBTC, String owc, double priceOWC, boolean estimatedPriceOWC, int widgetId, int color, String transparencyLevel) {
     mExchangeConfig = exchangeConfig;
     mPriceBTC = priceBTC;
     mOwc = owc;
@@ -18,6 +19,7 @@ public class PriceInfo {
     mEstimatedPriceOWC = estimatedPriceOWC;
     mWidgetId = widgetId;
     mColor = color;
+    mTransparencyLevel = transparencyLevel;
   }
 
   public String getExchangeConfig() {
@@ -46,6 +48,10 @@ public class PriceInfo {
 
   public int getColor() {
     return mColor;
+  }
+
+  public String getTransparencyLevel() {
+    return mTransparencyLevel;
   }
 
 }

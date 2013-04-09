@@ -56,6 +56,10 @@ public class UpdateWidgetService extends Service {
       colorString = prefs.getString(C.pref_key_color, "light_grey");
     }
     int color = C.getColor(colorString);
+    String transparencyLevel = intent.getStringExtra(C.pref_key_trans);
+    if (transparencyLevel == null) {
+      transparencyLevel = prefs.getString(C.pref_key_trans, C.TRANS_MEDIUM);
+    }
 
     ConnectivityManager connMgr = (ConnectivityManager)
       getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -63,7 +67,9 @@ public class UpdateWidgetService extends Service {
     if (networkInfo == null || (!networkInfo.isConnected())) {
       Log.w(C.LOG, "no internet connection");
     } else {
-      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, oldWorldCurrency, color));
+      // it sure would be nice to have an easier way than passing all this shite through here.
+      // BUT there appear to be concurrency issues with using fields.
+      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, oldWorldCurrency, color, transparencyLevel));
     }
 
     stopSelf();
@@ -76,11 +82,13 @@ public class UpdateWidgetService extends Service {
     public String mExchangeId;
     public String mOldWorldCurrency;
     public int mColor;
-    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency, int color) {
+    public String mTransparencyLevel;
+    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency, int color, String transparencyLevel) {
       mWidgetId = widgetId;
       mExchangeId = exchangeId;
       mOldWorldCurrency = oldWorldCurrency;
       mColor = color;
+      mTransparencyLevel = transparencyLevel;
     }
   }
 
@@ -143,16 +151,23 @@ public class UpdateWidgetService extends Service {
         priceOWC = convertFromUSD(downloaders, priceOWC, owc);
         estimatedPriceOWC = true;
       }
-      return new PriceInfo(eid, priceBTC, owc, priceOWC, estimatedPriceOWC, wid, args[0].mColor);
+      return new PriceInfo(eid, priceBTC, owc, priceOWC, estimatedPriceOWC, wid, args[0].mColor, args[0].mTransparencyLevel);
     }
 
     @Override protected void onPostExecute(PriceInfo result) {
       AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(
         UpdateWidgetService.this.getApplicationContext()
       );
+      int layout_id = R.layout.widget_layout_two;
+      String transLevel = result.getTransparencyLevel();
+      if (transLevel.equals(C.TRANS_HIGH)) {
+        layout_id = R.layout.widget_layout_one;
+      } else if (transLevel.equals(C.TRANS_LOW)) {
+        layout_id = R.layout.widget_layout_three;
+      }
       RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
         .getApplicationContext().getPackageName(),
-        R.layout.widget_layout);
+        layout_id);
 
       String cfg = result.getExchangeConfig();
       if (cfg.equals(C.CFG_VREX_LTC) || cfg.equals(C.CFG_BTCE_LTC)) {

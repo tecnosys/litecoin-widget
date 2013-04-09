@@ -33,7 +33,12 @@ public class C {
     }
   }
 
+  public static final String TRANS_MEDIUM = "medium";
+  public static final String TRANS_HIGH = "high";
+  public static final String TRANS_LOW = "low";
+
   public static final String pref_key_exchange      = "pref_key_exchange";
+  public static final String pref_key_trans         = "pref_key_trans";
   public static final String pref_key_rate_price    = "pref_key_rate_price";
   public static final String pref_key_rate_date     = "pref_key_rate_date";
   public static final String pref_key_rate_exchange = "pref_key_rate_exchange";
