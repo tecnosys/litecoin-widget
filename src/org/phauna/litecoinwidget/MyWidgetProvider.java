@@ -34,6 +34,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
       Intent intent = new Intent(context.getApplicationContext(),
           UpdateWidgetService.class);
       intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+      intent.putExtra(C.EXTRA_IS_MANUAL_UPDATE, false);
 
       // Update the widget via the service
       context.startService(intent);

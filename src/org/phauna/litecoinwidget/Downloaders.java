@@ -30,11 +30,17 @@ public class Downloaders {
   }
 
   public void toastLong(String msg) {
-    mToaster.toast(new Toasty(msg, Toast.LENGTH_LONG));
+    msg = "LitecoinWidget: " + msg;
+    if (mToaster != null) {
+      mToaster.toast(new Toasty(msg, Toast.LENGTH_LONG));
+    }
   }
 
   public void toastShort(String msg) {
-    mToaster.toast(new Toasty(msg, Toast.LENGTH_SHORT));
+    msg = "LitecoinWidget: " + msg;
+    if (mToaster != null) {
+      mToaster.toast(new Toasty(msg, Toast.LENGTH_SHORT));
+    }
   }
 
   public static HashMap<String, ExchangeRateEntry> currencyExchangeCache = new HashMap();
@@ -204,7 +210,7 @@ public class Downloaders {
         toastLong("http 403 (forbidden) for " + url);
         return "";
       } else if (response == 200) {
-        //toastShort("updated!");
+        toastShort("ok!");
         in = new BufferedInputStream(conn.getInputStream());
         String res = convertStreamToString(in);
         return res;

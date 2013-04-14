@@ -28,6 +28,12 @@ import android.net.ConnectivityManager;
 
 public class UpdateWidgetService extends Service {
 
+  private void toastIf(String msg, boolean cond) {
+    if (cond) {
+      Toast.makeText(this.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+  }
+
   @Override public void onStart(Intent intent, int startId) {
 
     int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
@@ -35,6 +41,8 @@ public class UpdateWidgetService extends Service {
       stopSelf();
       return;
     }
+
+    boolean isManualUpdate = intent.getBooleanExtra(C.EXTRA_IS_MANUAL_UPDATE, false);
 
     SharedPreferences prefs =
       this.getApplicationContext().getSharedPreferences("widget" + widgetId, Context.MODE_PRIVATE);
@@ -69,17 +77,17 @@ public class UpdateWidgetService extends Service {
       getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
     if (networkInfo == null || (!networkInfo.isConnected())) {
-      Toast.makeText(this.getApplicationContext(), "no network connection", Toast.LENGTH_SHORT).show();
+      toastIf("LitecoinWidget: no network connection", isManualUpdate);
       int layout_id = R.layout.widget_layout;
       RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
         .getApplicationContext().getPackageName(),
         layout_id);
       refreshWhenClicked(widgetId, remoteViews);
     } else {
-      Toast.makeText(this.getApplicationContext(), "refreshing..", Toast.LENGTH_SHORT).show();
+      toastIf("LitecoinWidget: refreshing...", isManualUpdate);
       // it sure would be nice to have an easier way than passing all this shite through here.
       // BUT there appear to be concurrency issues with using fields.
-      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, oldWorldCurrency, txtColor, bgColor));
+      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, oldWorldCurrency, txtColor, bgColor, isManualUpdate));
     }
 
     stopSelf();
@@ -93,12 +101,14 @@ public class UpdateWidgetService extends Service {
     public String mOldWorldCurrency;
     public int mTxtColor;
     public int mBgColor;
-    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency, int txtColor, int bgColor) {
+    public boolean mIsManualUpdate;
+    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency, int txtColor, int bgColor, boolean isManualUpdate) {
       mWidgetId = widgetId;
       mExchangeId = exchangeId;
       mOldWorldCurrency = oldWorldCurrency;
       mTxtColor = txtColor;
       mBgColor = bgColor;
+      mIsManualUpdate = isManualUpdate;
     }
   }
 
@@ -116,12 +126,17 @@ public class UpdateWidgetService extends Service {
     }
 
     @Override protected PriceInfo doInBackground(PriceTaskArgs... args) {
-      String eid = args[0].mExchangeId;
-      int wid = args[0].mWidgetId;
-      String owc = args[0].mOldWorldCurrency;
+      PriceTaskArgs arg = args[0];
+      String eid = arg.mExchangeId;
+      int wid = arg.mWidgetId;
+      String owc = arg.mOldWorldCurrency;
       double priceBTC = 0;
       double priceUSD = 0;
-      Downloaders downloaders = new Downloaders(new Toaster());
+      Toaster toaster = null;
+      if (arg.mIsManualUpdate) {
+        toaster = new Toaster();
+      }
+      Downloaders downloaders = new Downloaders(toaster);
       BtcPriceCache cache = new BtcPriceCache(UpdateWidgetService.this.getApplicationContext());
       if (eid.equals(C.CFG_VREX_LTC)) {
         priceBTC = downloaders.getVircurexPrice("LTC");
@@ -161,7 +176,7 @@ public class UpdateWidgetService extends Service {
         priceOWC = convertFromUSD(downloaders, priceOWC, owc);
         estimatedPriceOWC = true;
       }
-      return new PriceInfo(eid, priceBTC, owc, priceOWC, estimatedPriceOWC, wid, args[0].mTxtColor, args[0].mBgColor);
+      return new PriceInfo(eid, priceBTC, owc, priceOWC, estimatedPriceOWC, wid, arg.mTxtColor, arg.mBgColor);
     }
 
     @Override protected void onPostExecute(PriceInfo result) {
@@ -230,7 +245,6 @@ public class UpdateWidgetService extends Service {
       remoteViews.setTextColor(R.id.time, color);
 
       int bgColor = result.getBgColor();
-      Log.d(C.LOG, "color is " + bgColor + " with alpha component: " + Color.alpha(bgColor));
       // TODO: does this work on older platforms ?
       remoteViews.setInt(R.id.BackgroundImageView, "setColorFilter", bgColor);
 
@@ -256,6 +270,7 @@ public class UpdateWidgetService extends Service {
         UpdateWidgetService.class);
     clickIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
     clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+    clickIntent.putExtra(C.EXTRA_IS_MANUAL_UPDATE, true);
     // to make the intent unique, otherwise they all wind up referencing the same intent:
     clickIntent.setData(Uri.parse("widget:" + widgetId));
 
