@@ -33,12 +33,8 @@ public class C {
     }
   }
 
-  public static final String TRANS_MEDIUM = "medium";
-  public static final String TRANS_HIGH = "high";
-  public static final String TRANS_LOW = "low";
-
   public static final String pref_key_exchange      = "pref_key_exchange";
-  public static final String pref_key_trans         = "pref_key_trans";
+  public static final String pref_key_transparbar   = "pref_key_transparbar";
   public static final String pref_key_rate_price    = "pref_key_rate_price";
   public static final String pref_key_rate_date     = "pref_key_rate_date";
   public static final String pref_key_rate_exchange = "pref_key_rate_exchange";
@@ -71,16 +67,6 @@ public class C {
     } else {
       return COLOR_LTG;
     }
-  }
-
-  public static int getLayoutID(String transLevel) {
-    int layout_id = R.layout.widget_layout_two;
-    if (transLevel.equals(C.TRANS_HIGH)) {
-      layout_id = R.layout.widget_layout_one;
-    } else if (transLevel.equals(C.TRANS_LOW)) {
-      layout_id = R.layout.widget_layout_three;
-    }
-    return layout_id;
   }
 
 }

@@ -77,10 +77,10 @@ public class MainActivity extends PreferenceActivity implements
       Preference ePref = findPreference(C.pref_key_color);
       ePref.setSummary(color);
     }
-    if (key.equals(C.pref_key_trans)) {
-      String trans = prefs.getString(C.pref_key_trans, C.TRANS_MEDIUM);
-      Preference ePref = findPreference(C.pref_key_trans);
-      ePref.setSummary(trans);
+    if (key.equals(C.pref_key_transparbar)) {
+      //int trans = prefs.getInt(C.pref_key_transpar, 30);
+      //Preference ePref = findPreference(C.pref_key_transpar);
+      //ePref.setSummary("" + trans + "%");
     }
     if (key.equals(C.pref_key_done)) {
       // Update the widget via the service
@@ -91,7 +91,7 @@ public class MainActivity extends PreferenceActivity implements
       intent.putExtra(C.pref_key_exchange, prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC));
       intent.putExtra(C.pref_key_owc, prefs.getString(C.pref_key_owc, C.USD));
       intent.putExtra(C.pref_key_color, prefs.getString(C.pref_key_color, "light_grey"));
-      intent.putExtra(C.pref_key_trans, prefs.getString(C.pref_key_trans, C.TRANS_MEDIUM));
+      intent.putExtra(C.pref_key_transparbar, prefs.getInt(C.pref_key_transparbar, 30));
       startService(intent);
 
       // why do I need to put the extraAppWidgetID?

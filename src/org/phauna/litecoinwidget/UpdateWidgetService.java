@@ -56,9 +56,9 @@ public class UpdateWidgetService extends Service {
       colorString = prefs.getString(C.pref_key_color, "light_grey");
     }
     int color = C.getColor(colorString);
-    String transparencyLevel = intent.getStringExtra(C.pref_key_trans);
-    if (transparencyLevel == null) {
-      transparencyLevel = prefs.getString(C.pref_key_trans, C.TRANS_MEDIUM);
+    int transparencyLevel = intent.getIntExtra(C.pref_key_transparbar, -1);
+    if (transparencyLevel == -1) {
+      transparencyLevel = prefs.getInt(C.pref_key_transparbar, 30);
     }
 
     ConnectivityManager connMgr = (ConnectivityManager)
@@ -66,7 +66,7 @@ public class UpdateWidgetService extends Service {
     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
     if (networkInfo == null || (!networkInfo.isConnected())) {
       Toast.makeText(this.getApplicationContext(), "no network connection", Toast.LENGTH_SHORT).show();
-      int layout_id = C.getLayoutID(transparencyLevel);
+      int layout_id = R.layout.widget_layout;
       RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
         .getApplicationContext().getPackageName(),
         layout_id);
@@ -88,8 +88,8 @@ public class UpdateWidgetService extends Service {
     public String mExchangeId;
     public String mOldWorldCurrency;
     public int mColor;
-    public String mTransparencyLevel;
-    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency, int color, String transparencyLevel) {
+    public int mTransparencyLevel;
+    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency, int color, int transparencyLevel) {
       mWidgetId = widgetId;
       mExchangeId = exchangeId;
       mOldWorldCurrency = oldWorldCurrency;
@@ -161,10 +161,9 @@ public class UpdateWidgetService extends Service {
     }
 
     @Override protected void onPostExecute(PriceInfo result) {
-      int layout_id = C.getLayoutID(result.getTransparencyLevel());
       RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
         .getApplicationContext().getPackageName(),
-        layout_id);
+        R.layout.widget_layout);
 
       String cfg = result.getExchangeConfig();
       if (cfg.equals(C.CFG_VREX_LTC) || cfg.equals(C.CFG_BTCE_LTC)) {
@@ -225,6 +224,15 @@ public class UpdateWidgetService extends Service {
       remoteViews.setTextColor(R.id.priceBTC, color);
       remoteViews.setTextColor(R.id.priceOWC, color);
       remoteViews.setTextColor(R.id.time, color);
+
+      //remoteViews.setInt(R.id.BackgroundImageView, "setBackgroundColor", android.graphics.Color.BLACK);
+      int transparencyLevel = result.getTransparencyLevel();
+      // invert it, so that higher = more transparent:
+      transparencyLevel = 100 - transparencyLevel;
+      // the setting is 0-100, scale it to 0-255:
+      transparencyLevel = (transparencyLevel * 255) / 100;
+      //float trans = (float) transparencyLevel / 100;
+      remoteViews.setInt(R.id.BackgroundImageView, "setAlpha", transparencyLevel);
 
       refreshWhenClicked(result.getWidgetId(), remoteViews);
 

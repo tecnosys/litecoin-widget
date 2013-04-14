@@ -55,15 +55,4 @@
    <item>green</item>
  </string-array>
 
- <string-array name="array_trans_names">
-   <item>low</item>
-   <item>medium</item>
-   <item>high</item>
- </string-array>
- <string-array name="array_trans_values">
-   <item>low</item>
-   <item>medium</item>
-   <item>high</item>
- </string-array>
-
 </resources>
