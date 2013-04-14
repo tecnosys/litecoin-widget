@@ -10,10 +10,16 @@
  <string name="pref_owc">Old World Currency</string>
  <string name="pref_summary_owc">for displaying estimates (default: USD)</string>
 
- <string name="pref_color">Text Color</string>
  <string name="pref_trans">Level of Transparency</string>
+
+ <string name="pref_txtcolor">Text Color</string>
 
  <string name="pref_done">LET\'S GO ALREADY!</string>
 
  <string name="button_go">go</string>
+
+ <string name="dialog_color_picker">Color Picker</string>
+ <string name="press_color_to_apply">Press on Color to select</string>
+ <string name="pref_bgcolor">Background Color</string>
+
 </resources>

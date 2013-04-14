@@ -51,15 +51,19 @@ public class UpdateWidgetService extends Service {
     if (oldWorldCurrency == null) {
       oldWorldCurrency = prefs.getString(C.pref_key_owc, C.USD);
     }
-    String colorString = intent.getStringExtra(C.pref_key_color);
-    if (colorString == null) {
-      colorString = prefs.getString(C.pref_key_color, "light_grey");
+    int txtColor = intent.getIntExtra(C.pref_key_txtcolor, -1);
+    if (txtColor == -1) {
+      txtColor = prefs.getInt(C.pref_key_txtcolor, C.DEFAULT_COLOR_TEXT);
     }
-    int color = C.getColor(colorString);
+    int bgColor = intent.getIntExtra(C.pref_key_bgcolor, -1);
+    if (bgColor == -1) {
+      bgColor = prefs.getInt(C.pref_key_bgcolor, C.DEFAULT_COLOR_BG);
+    }
+    /*
     int transparencyLevel = intent.getIntExtra(C.pref_key_transparbar, -1);
     if (transparencyLevel == -1) {
       transparencyLevel = prefs.getInt(C.pref_key_transparbar, 30);
-    }
+    }*/
 
     ConnectivityManager connMgr = (ConnectivityManager)
       getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -75,7 +79,7 @@ public class UpdateWidgetService extends Service {
       Toast.makeText(this.getApplicationContext(), "refreshing..", Toast.LENGTH_SHORT).show();
       // it sure would be nice to have an easier way than passing all this shite through here.
       // BUT there appear to be concurrency issues with using fields.
-      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, oldWorldCurrency, color, transparencyLevel));
+      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, oldWorldCurrency, txtColor, bgColor));
     }
 
     stopSelf();
@@ -87,14 +91,14 @@ public class UpdateWidgetService extends Service {
     public int mWidgetId;
     public String mExchangeId;
     public String mOldWorldCurrency;
-    public int mColor;
-    public int mTransparencyLevel;
-    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency, int color, int transparencyLevel) {
+    public int mTxtColor;
+    public int mBgColor;
+    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency, int txtColor, int bgColor) {
       mWidgetId = widgetId;
       mExchangeId = exchangeId;
       mOldWorldCurrency = oldWorldCurrency;
-      mColor = color;
-      mTransparencyLevel = transparencyLevel;
+      mTxtColor = txtColor;
+      mBgColor = bgColor;
     }
   }
 
@@ -157,7 +161,7 @@ public class UpdateWidgetService extends Service {
         priceOWC = convertFromUSD(downloaders, priceOWC, owc);
         estimatedPriceOWC = true;
       }
-      return new PriceInfo(eid, priceBTC, owc, priceOWC, estimatedPriceOWC, wid, args[0].mColor, args[0].mTransparencyLevel);
+      return new PriceInfo(eid, priceBTC, owc, priceOWC, estimatedPriceOWC, wid, args[0].mTxtColor, args[0].mBgColor);
     }
 
     @Override protected void onPostExecute(PriceInfo result) {
@@ -219,20 +223,27 @@ public class UpdateWidgetService extends Service {
       }
       remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(cfg));
       // set text colors:
-      int color = result.getColor();
+      int color = result.getTxtColor();
       remoteViews.setTextColor(R.id.exchange_name, color);
       remoteViews.setTextColor(R.id.priceBTC, color);
       remoteViews.setTextColor(R.id.priceOWC, color);
       remoteViews.setTextColor(R.id.time, color);
 
+      int bgColor = result.getBgColor();
+      Log.d(C.LOG, "color is " + bgColor + " with alpha component: " + Color.alpha(bgColor));
+      // TODO: does this work on older platforms ?
+      remoteViews.setInt(R.id.BackgroundImageView, "setColorFilter", bgColor);
+
+      int alpha = Color.alpha(bgColor);
+      remoteViews.setInt(R.id.BackgroundImageView, "setAlpha", alpha);
+
       //remoteViews.setInt(R.id.BackgroundImageView, "setBackgroundColor", android.graphics.Color.BLACK);
-      int transparencyLevel = result.getTransparencyLevel();
+      //int transparencyLevel = result.getTransparencyLevel();
       // invert it, so that higher = more transparent:
-      transparencyLevel = 100 - transparencyLevel;
+      //transparencyLevel = 100 - transparencyLevel;
       // the setting is 0-100, scale it to 0-255:
-      transparencyLevel = (transparencyLevel * 255) / 100;
+      //transparencyLevel = (transparencyLevel * 255) / 100;
       //float trans = (float) transparencyLevel / 100;
-      remoteViews.setInt(R.id.BackgroundImageView, "setAlpha", transparencyLevel);
 
       refreshWhenClicked(result.getWidgetId(), remoteViews);
 

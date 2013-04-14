@@ -40,7 +40,8 @@ public class C {
   public static final String pref_key_rate_exchange = "pref_key_rate_exchange";
   public static final String pref_key_owc           = "pref_key_owc";
   public static final String pref_key_done          = "pref_key_done";
-  public static final String pref_key_color         = "pref_key_color";
+  public static final String pref_key_txtcolor      = "pref_key_txtcolor";
+  public static final String pref_key_bgcolor       = "pref_key_bgcolor";
 
   public static final String LOG = "org.phauna.litecoinwidget";
 
@@ -49,24 +50,11 @@ public class C {
   public static final String GBP = "GBP";
   public static final String JPY = "JPY";
 
+  public static final int DEFAULT_COLOR_TEXT = 0xffC9C9C9;
+  public static final int DEFAULT_COLOR_BG = 0x44494949;
+
   public static String currencySymbol(String c) {
     return Currency.getInstance(c).getSymbol();
-  }
-
-  public static final int COLOR_LTG = 0xFFC9C9C9;
-  public static final int COLOR_DKB = 0xFF150038;
-  public static final int COLOR_GRN = 0xFF00820B;
-
-  public static int getColor(String colorKey) {
-    if (colorKey.equals("light_grey")) {
-      return COLOR_LTG;
-    } else if (colorKey.equals("dark_blue")) {
-      return COLOR_DKB;
-    } else if (colorKey.equals("green")) {
-      return COLOR_GRN;
-    } else {
-      return COLOR_LTG;
-    }
   }
 
 }

@@ -20,23 +20,16 @@
    android:entryValues="@array/array_owc_values"
    android:defaultValue="USD"
  />
- <ListPreference
-   android:title="@string/pref_color"
-   android:key="pref_key_color"
-   android:entries="@array/array_color_names"
-   android:entryValues="@array/array_color_values"
-   android:summary="light_grey"
-   android:defaultValue="light_grey"
+ <net.margaritov.preference.colorpicker.ColorPickerPreference
+   android:key="pref_key_txtcolor"
+   android:title="@string/pref_txtcolor"
+   android:defaultValue="@integer/DEFAULT_COLOR_TXT"
  />
- <org.phauna.litecoinwidget.SeekBarPreference
-   android:title="@string/pref_trans"
-   android:key="pref_key_transparbar"
-   android:summary="higher = more transparent"
-   android:defaultValue="30"
-   android:max="100"
-   robobunny:min="0"
-   robobunny:unitsLeft=""
-   robobunny:unitsRight="%"
+ <net.margaritov.preference.colorpicker.ColorPickerPreference
+   android:key="pref_key_bgcolor"
+   android:title="@string/pref_bgcolor"
+   android:defaultValue="@integer/DEFAULT_COLOR_BG"
+   alphaSlider="true"
  />
  <CheckBoxPreference
    android:title="@string/pref_done"
