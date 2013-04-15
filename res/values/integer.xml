@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
 	<integer name="DEFAULT_COLOR_TXT">0xffc9c9c9</integer>
-	<integer name="DEFAULT_COLOR_BG">0x44494949</integer>
+	<integer name="DEFAULT_COLOR_BG">0xbb494949</integer>
 </resources>

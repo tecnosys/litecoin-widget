@@ -13,7 +13,7 @@
     android:src="@drawable/widget_rectangle" >
   </ImageView>
 
-  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  <LinearLayout
       android:id="@+id/widgetframe"
       android:orientation="vertical"
       android:layout_width="match_parent"
@@ -78,8 +78,3 @@
   </LinearLayout>
 
 </RelativeLayout>
-
-
-
-
-

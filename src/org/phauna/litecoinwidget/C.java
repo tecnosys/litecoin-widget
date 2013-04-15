@@ -51,7 +51,7 @@ public class C {
   public static final String JPY = "JPY";
 
   public static final int DEFAULT_COLOR_TEXT = 0xffC9C9C9;
-  public static final int DEFAULT_COLOR_BG = 0x44494949;
+  public static final int DEFAULT_COLOR_BG = 0xbb494949;
 
   public static final String EXTRA_IS_MANUAL_UPDATE = "extra_is_manual_update";
 

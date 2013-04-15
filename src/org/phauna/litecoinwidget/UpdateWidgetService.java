@@ -12,22 +12,33 @@ import android.view.View;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.graphics.Color;
 import java.util.Date;
 import android.text.format.DateUtils;
 import android.content.Context;
 import android.widget.Toast;
 
+import android.graphics.Color;
+import android.graphics.Canvas;
+import android.graphics.Bitmap;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.drawable.shapes.RoundRectShape;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.Drawable;
+
 import android.net.Uri;
 
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
 import android.net.NetworkInfo;
 import android.net.ConnectivityManager;
 
 public class UpdateWidgetService extends Service {
+
+  private int getWidgetLayout() {
+    return R.layout.widget_layout;
+  }
 
   private void toastIf(String msg, boolean cond) {
     if (cond) {
@@ -50,11 +61,7 @@ public class UpdateWidgetService extends Service {
 
     String exchangeId = intent.getStringExtra(C.pref_key_exchange);
     if (exchangeId == null) {
-      exchangeId = prefs.getString(C.pref_key_exchange, C.CFG_INVALID);
-      if (exchangeId.equals(C.CFG_INVALID)) {
-        stopSelf();
-        return;
-      }
+      exchangeId = prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC);
     }
     String oldWorldCurrency = intent.getStringExtra(C.pref_key_owc);
     if (oldWorldCurrency == null) {
@@ -68,18 +75,13 @@ public class UpdateWidgetService extends Service {
     if (bgColor == -1) {
       bgColor = prefs.getInt(C.pref_key_bgcolor, C.DEFAULT_COLOR_BG);
     }
-    /*
-    int transparencyLevel = intent.getIntExtra(C.pref_key_transparbar, -1);
-    if (transparencyLevel == -1) {
-      transparencyLevel = prefs.getInt(C.pref_key_transparbar, 30);
-    }*/
 
     ConnectivityManager connMgr = (ConnectivityManager)
       getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
     if (networkInfo == null || (!networkInfo.isConnected())) {
       toastIf("LitecoinWidget: no network connection", isManualUpdate);
-      int layout_id = R.layout.widget_layout;
+      int layout_id = getWidgetLayout();
       RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
         .getApplicationContext().getPackageName(),
         layout_id);
@@ -182,8 +184,7 @@ public class UpdateWidgetService extends Service {
 
     @Override protected void onPostExecute(PriceInfo result) {
       RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
-        .getApplicationContext().getPackageName(),
-        R.layout.widget_layout);
+        .getApplicationContext().getPackageName(), getWidgetLayout());
 
       String cfg = result.getExchangeConfig();
       if (cfg.equals(C.CFG_VREX_LTC) || cfg.equals(C.CFG_BTCE_LTC)) {
@@ -245,21 +246,11 @@ public class UpdateWidgetService extends Service {
       remoteViews.setTextColor(R.id.priceOWC, color);
       remoteViews.setTextColor(R.id.time, color);
 
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) { // 3.0
-        int bgColor = result.getBgColor();
-        remoteViews.setInt(R.id.BackgroundImageView, "setColorFilter", bgColor);
-
-        int alpha = Color.alpha(bgColor);
-        remoteViews.setInt(R.id.BackgroundImageView, "setAlpha", alpha);
-      }
-
-      //remoteViews.setInt(R.id.BackgroundImageView, "setBackgroundColor", android.graphics.Color.BLACK);
-      //int transparencyLevel = result.getTransparencyLevel();
-      // invert it, so that higher = more transparent:
-      //transparencyLevel = 100 - transparencyLevel;
-      // the setting is 0-100, scale it to 0-255:
-      //transparencyLevel = (transparencyLevel * 255) / 100;
-      //float trans = (float) transparencyLevel / 100;
+      // set background color and transparency:
+      int bgColor = result.getBgColor();
+      remoteViews.setImageViewBitmap(R.id.BackgroundImageView,
+        getBackground(UpdateWidgetService.this.getApplicationContext(), bgColor)
+      );
 
       refreshWhenClicked(result.getWidgetId(), remoteViews);
 
@@ -278,7 +269,7 @@ public class UpdateWidgetService extends Service {
 
     PendingIntent pendingIntent = PendingIntent.getService(
         UpdateWidgetService.this.getApplicationContext(),
-        0, clickIntent, PendingIntent.FLAG_ONE_SHOT);
+        0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     remoteViews.setOnClickPendingIntent(R.id.widgetframe, pendingIntent);
     AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(
       UpdateWidgetService.this.getApplicationContext()
@@ -312,6 +303,32 @@ public class UpdateWidgetService extends Service {
   @Override
   public IBinder onBind(Intent intent) {
     return null;
+  }
+
+  public static Drawable getDrawable(Context c, int bgcolor) {
+    float[] corners = {8,8,8,8,8,8,8,8};
+    ShapeDrawable d = new ShapeDrawable(new RoundRectShape(corners,null,corners));
+    d.getPaint().setColor(bgcolor);
+    //d.getPaint().setAlpha(Color.alpha(bgcolor));
+    return d;
+  }
+
+  public static Bitmap getBackground(Context c, int bgcolor) {
+    try {
+      Bitmap.Config config = Bitmap.Config.ARGB_8888;
+        // Bitmap.Config.ARGB_8888 Bitmap.Config.ARGB_4444 to be used as
+        // these two config constant supports transparency
+      Bitmap bitmap = Bitmap.createBitmap(200, 200, config); // Create a Bitmap
+      Canvas canvas =  new Canvas(bitmap); // Load the Bitmap to the Canvas
+      RectF r = new RectF(0, 0, 200, 200);
+      Paint paint = new Paint();
+      paint.setColor(bgcolor);
+      paint.setAlpha(Color.alpha(bgcolor));
+      canvas.drawRoundRect(r, 15, 15, paint);
+      return bitmap;
+    } catch (Exception e) {
+        return null;
+    }
   }
 
 }
