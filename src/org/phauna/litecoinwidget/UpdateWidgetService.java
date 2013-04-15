@@ -1,6 +1,7 @@
 package org.phauna.litecoinwidget;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import java.text.DecimalFormat;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -244,12 +245,13 @@ public class UpdateWidgetService extends Service {
       remoteViews.setTextColor(R.id.priceOWC, color);
       remoteViews.setTextColor(R.id.time, color);
 
-      int bgColor = result.getBgColor();
-      // TODO: does this work on older platforms ?
-      remoteViews.setInt(R.id.BackgroundImageView, "setColorFilter", bgColor);
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) { // 3.0
+        int bgColor = result.getBgColor();
+        remoteViews.setInt(R.id.BackgroundImageView, "setColorFilter", bgColor);
 
-      int alpha = Color.alpha(bgColor);
-      remoteViews.setInt(R.id.BackgroundImageView, "setAlpha", alpha);
+        int alpha = Color.alpha(bgColor);
+        remoteViews.setInt(R.id.BackgroundImageView, "setAlpha", alpha);
+      }
 
       //remoteViews.setInt(R.id.BackgroundImageView, "setBackgroundColor", android.graphics.Color.BLACK);
       //int transparencyLevel = result.getTransparencyLevel();
