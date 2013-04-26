@@ -10,6 +10,8 @@
   <item>Btc-e (NMC)</item>
   <item>Vircurex (PPC)</item>
   <item>Btc-e (PPC)</item>
+  <item>Vircurex (TRC)</item>
+  <item>Btc-e (TRC)</item>
  </string-array>
  <string-array name="array_exchange_values">
   <item>vircurex_ltc</item>
@@ -21,6 +23,8 @@
   <item>btce_nmc</item>
   <item>vircurex_ppc</item>
   <item>btce_ppc</item>
+  <item>vircurex_trc</item>
+  <item>btce_trc</item>
  </string-array>
 
  <string-array name="array_owc_names">

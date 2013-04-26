@@ -6,26 +6,27 @@ public class C {
   public static final String CFG_VREX_LTC = "vircurex_ltc";
   public static final String CFG_VREX_NMC = "vircurex_nmc";
   public static final String CFG_VREX_PPC = "vircurex_ppc";
-  public static final String CFG_BFLR_BTC = "bitfloor_btc";
+  public static final String CFG_VREX_TRC = "vircurex_trc";
   public static final String CFG_MGOX_BTC = "mtgox_btc";
   public static final String CFG_BTCE_LTC = "btce_ltc";
   public static final String CFG_BTCE_BTC = "btce_btc";
   public static final String CFG_BTCE_NMC = "btce_nmc";
   public static final String CFG_BTCE_PPC = "btce_ppc";
+  public static final String CFG_BTCE_TRC = "btce_trc";
   public static final String CFG_INVALID  = "invalid";
 
   public static String exchangeName(String exchange) {
     if (   exchange.equals(CFG_VREX_LTC)
         || exchange.equals(CFG_VREX_NMC)
+        || exchange.equals(CFG_VREX_TRC)
         || exchange.equals(CFG_VREX_PPC)) {
       return "V'rex";
     } else if (exchange.equals(CFG_BTCE_LTC)
             || exchange.equals(CFG_BTCE_BTC)
             || exchange.equals(CFG_BTCE_NMC)
+            || exchange.equals(CFG_BTCE_TRC)
             || exchange.equals(CFG_BTCE_PPC)) {
       return "Btc-e";
-    } else if (exchange.equals(CFG_BFLR_BTC)) {
-      return "B'flr";
     } else if (exchange.equals(CFG_MGOX_BTC)) {
       return "Mtgox";
     } else {

@@ -148,8 +148,12 @@ public class UpdateWidgetService extends Service {
         priceBTC = downloaders.getVircurexPrice("NMC");
       } else if (eid.equals(C.CFG_VREX_PPC)) {
         priceBTC = downloaders.getVircurexPrice("PPC");
+      } else if (eid.equals(C.CFG_VREX_TRC)) {
+        priceBTC = downloaders.getVircurexPrice("TRC");
       } else if (eid.equals(C.CFG_BTCE_PPC)) {
         priceBTC = downloaders.getBtcePrice("ppc", "btc");
+      } else if (eid.equals(C.CFG_BTCE_TRC)) {
+        priceBTC = downloaders.getBtcePrice("trc", "btc");
       } else if (eid.equals(C.CFG_BTCE_NMC)) {
         priceBTC = downloaders.getBtcePrice("nmc", "btc");
       } else if (eid.equals(C.CFG_BTCE_LTC)) {
@@ -158,13 +162,6 @@ public class UpdateWidgetService extends Service {
           priceOWC = downloaders.getBtcePrice("ltc", owc.toLowerCase());
         } else {
           priceOWC = downloaders.getBtcePrice("ltc", "usd");
-          priceOWC = convertFromUSD(downloaders, priceOWC, owc);
-          estimatedPriceOWC = true;
-        }
-      } else if (eid.equals(C.CFG_BFLR_BTC)) {
-        priceOWC = downloaders.getBitfloorPriceBTCUSD();
-        cache.updatePrice(eid, (float) priceOWC);
-        if (!owc.equals("USD")) {
           priceOWC = convertFromUSD(downloaders, priceOWC, owc);
           estimatedPriceOWC = true;
         }
@@ -210,12 +207,14 @@ public class UpdateWidgetService extends Service {
       String cfg = result.getExchangeConfig();
       if (cfg.equals(C.CFG_VREX_LTC) || cfg.equals(C.CFG_BTCE_LTC)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.litecoin);
-      } else if (cfg.equals(C.CFG_BFLR_BTC) || cfg.equals(C.CFG_BTCE_BTC) || cfg.equals(C.CFG_MGOX_BTC)) {
+      } else if (cfg.equals(C.CFG_BTCE_BTC) || cfg.equals(C.CFG_MGOX_BTC)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.bitcoin);
       } else if (cfg.equals(C.CFG_VREX_NMC) || cfg.equals(C.CFG_BTCE_NMC)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.namecoin);
       } else if (cfg.equals(C.CFG_VREX_PPC) || cfg.equals(C.CFG_BTCE_PPC)) {
         remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.ppcoin);
+      } else if (cfg.equals(C.CFG_VREX_TRC) || cfg.equals(C.CFG_BTCE_TRC)) {
+        remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.terracoin);
       }
       double btcDouble = result.getPriceBTC();
       double owcDouble = result.getPriceOWC();
