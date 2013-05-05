@@ -88,8 +88,12 @@ public class MainActivity extends PreferenceActivity implements
       intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
       // put the preferences directly, because they haven't necessarily committed
       // yet when I want to run service to update the widget for the first time:
-      intent.putExtra(C.pref_key_exchange, prefs.getString(C.pref_key_exchange, C.EXCH_VREX));
-      intent.putExtra(C.pref_key_coin, prefs.getString(C.pref_key_coin, "LTC"));
+      String exchange = prefs.getString(C.pref_key_exchange, C.EXCH_VREX);
+      Log.d(C.LOG, "MainActivity (" + mAppWidgetId + ") putting exchange: " + exchange);
+      intent.putExtra(C.pref_key_exchange, exchange);
+      String coin = prefs.getString(C.pref_key_coin, "LTC");
+      Log.d(C.LOG, "MainActivity (" + mAppWidgetId + ") putting coin: " + coin);
+      intent.putExtra(C.pref_key_coin, coin);
       intent.putExtra(C.pref_key_owc, prefs.getString(C.pref_key_owc, C.USD));
       intent.putExtra(C.pref_key_txtcolor, prefs.getInt(C.pref_key_txtcolor, C.DEFAULT_COLOR_TEXT));
       intent.putExtra(C.pref_key_bgcolor, prefs.getInt(C.pref_key_bgcolor, C.DEFAULT_COLOR_BG));

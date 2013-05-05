@@ -46,6 +46,18 @@ public class UpdateWidgetService extends Service {
     }
   }
 
+  // there are a number of cases in onStart that we don't want to update
+  // the screen, but we still want to install the click handler. That's what
+  // this method does.
+  private void doNotUpdate(int widgetId) {
+    int layout_id = getWidgetLayout();
+    RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
+      .getApplicationContext().getPackageName(),
+      layout_id);
+    refreshWhenClicked(widgetId, remoteViews);
+    stopSelf();
+  }
+
   @Override public void onStart(Intent intent, int startId) {
 
     int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
@@ -61,11 +73,19 @@ public class UpdateWidgetService extends Service {
 
     String exchangeId = intent.getStringExtra(C.pref_key_exchange);
     if (exchangeId == null) {
-      exchangeId = prefs.getString(C.pref_key_exchange, C.EXCH_VREX);
+      exchangeId = prefs.getString(C.pref_key_exchange, null);
+      if (exchangeId == null) {
+        doNotUpdate(widgetId);
+        return;
+      }
     }
     String coin = intent.getStringExtra(C.pref_key_coin);
     if (coin == null) {
-      coin = prefs.getString(C.pref_key_coin, "LTC");
+      coin = prefs.getString(C.pref_key_coin, null);
+      if (coin == null) {
+        doNotUpdate(widgetId);
+        return;
+      }
     }
     String oldWorldCurrency = intent.getStringExtra(C.pref_key_owc);
     if (oldWorldCurrency == null) {
@@ -85,20 +105,16 @@ public class UpdateWidgetService extends Service {
     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
     if (networkInfo == null || (!networkInfo.isConnected())) {
       toastIf("LitecoinWidget: no network connection", isManualUpdate);
-      int layout_id = getWidgetLayout();
-      RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
-        .getApplicationContext().getPackageName(),
-        layout_id);
-      refreshWhenClicked(widgetId, remoteViews);
-    } else {
-      toastIf("LitecoinWidget: refreshing...", isManualUpdate);
-      // it sure would be nice to have an easier way than passing all this shite through here.
-      // BUT there appear to be concurrency issues with using fields.
-      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, coin, oldWorldCurrency, txtColor, bgColor, isManualUpdate));
+      doNotUpdate(widgetId);
+      return;
     }
 
-    stopSelf();
+    toastIf("LitecoinWidget: refreshing...", isManualUpdate);
+    // it sure would be nice to have an easier way than passing all this shite through here.
+    // BUT there appear to be concurrency issues with using fields.
+    new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, coin, oldWorldCurrency, txtColor, bgColor, isManualUpdate));
 
+    stopSelf();
     super.onStart(intent, startId);
   }
 
