@@ -17,7 +17,6 @@
   <item>PPC</item>
   <item>TRC</item>
   <item>FTC</item>
-  <item>DVC</item>
  </string-array>
 
  <string-array name="array_mgox_coins">
@@ -31,7 +30,6 @@
   <item>PPC</item>
   <item>TRC</item>
   <item>FTC</item>
-  <item>NVC</item>
  </string-array>
 
  <string-array name="array_owc_names">
