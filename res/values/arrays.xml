@@ -1,43 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
  <string-array name="array_exchanges">
-  <item>Vircurex (LTC)</item>
-  <item>Btc-e (LTC)</item>
-  <item>Mtgox (BTC)</item>
-  <item>Bitfloor (BTC)</item>
-  <item>Btc-e (BTC)</item>
-  <item>Vircurex (NMC)</item>
-  <item>Btc-e (NMC)</item>
-  <item>Vircurex (PPC)</item>
-  <item>Btc-e (PPC)</item>
-  <item>Vircurex (TRC)</item>
-  <item>Btc-e (TRC)</item>
+  <item>Vircurex</item>
+  <item>Btc-e</item>
+  <item>Mtgox</item>
  </string-array>
  <string-array name="array_exchange_values">
-  <item>vircurex_ltc</item>
-  <item>btce_ltc</item>
-  <item>mtgox_btc</item>
-  <item>bitfloor_btc</item>
-  <item>btce_btc</item>
-  <item>vircurex_nmc</item>
-  <item>btce_nmc</item>
-  <item>vircurex_ppc</item>
-  <item>btce_ppc</item>
-  <item>vircurex_trc</item>
-  <item>btce_trc</item>
+  <item>exch_vrex</item>
+  <item>exch_btce</item>
+  <item>exch_mgox</item>
+ </string-array>
+
+ <string-array name="array_vrex_coins">
+  <item>LTC</item>
+  <item>NMC</item>
+  <item>PPC</item>
+  <item>TRC</item>
+  <item>FTC</item>
+  <item>DVC</item>
+ </string-array>
+
+ <string-array name="array_mgox_coins">
+  <item>BTC</item>
+ </string-array>
+
+ <string-array name="array_btce_coins">
+  <item>BTC</item>
+  <item>LTC</item>
+  <item>NMC</item>
+  <item>PPC</item>
+  <item>TRC</item>
+  <item>FTC</item>
+  <item>NVC</item>
  </string-array>
 
  <string-array name="array_owc_names">
-   <item>USD</item>
-   <item>EUR</item>
-   <item>GBP</item>
-   <item>JPY</item>
-   <item>CHF</item>
-   <item>CAD</item>
-   <item>AUD</item>
-   <item>RUR</item>
- </string-array>
- <string-array name="array_owc_values">
    <item>USD</item>
    <item>EUR</item>
    <item>GBP</item>

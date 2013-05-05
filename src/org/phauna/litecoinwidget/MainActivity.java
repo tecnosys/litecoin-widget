@@ -14,6 +14,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.SharedPreferences.Editor;
@@ -63,9 +64,18 @@ public class MainActivity extends PreferenceActivity implements
 
   public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
     if (key.equals(C.pref_key_exchange)) {
-      String exchange = prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC);
+      String exchange = prefs.getString(C.pref_key_exchange, C.EXCH_VREX);
       Preference ePref = findPreference(C.pref_key_exchange);
-      ePref.setSummary(exchange);
+      ePref.setSummary(C.exchangeName(exchange));
+      ListPreference cPref = (ListPreference) findPreference(C.pref_key_coin);
+      CharSequence[] entries = getResources().getStringArray(C.exchangeCoins(exchange));
+      cPref.setEntries(entries);
+      cPref.setEntryValues(entries);
+    }
+    if (key.equals(C.pref_key_coin)) {
+      String coin = prefs.getString(C.pref_key_coin, "LTC");
+      Preference p = findPreference(C.pref_key_coin);
+      p.setSummary(coin);
     }
     if (key.equals(C.pref_key_owc)) {
       String owc = prefs.getString(C.pref_key_owc, C.USD);
@@ -78,7 +88,8 @@ public class MainActivity extends PreferenceActivity implements
       intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
       // put the preferences directly, because they haven't necessarily committed
       // yet when I want to run service to update the widget for the first time:
-      intent.putExtra(C.pref_key_exchange, prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC));
+      intent.putExtra(C.pref_key_exchange, prefs.getString(C.pref_key_exchange, C.EXCH_VREX));
+      intent.putExtra(C.pref_key_coin, prefs.getString(C.pref_key_coin, "LTC"));
       intent.putExtra(C.pref_key_owc, prefs.getString(C.pref_key_owc, C.USD));
       intent.putExtra(C.pref_key_txtcolor, prefs.getInt(C.pref_key_txtcolor, C.DEFAULT_COLOR_TEXT));
       intent.putExtra(C.pref_key_bgcolor, prefs.getInt(C.pref_key_bgcolor, C.DEFAULT_COLOR_BG));

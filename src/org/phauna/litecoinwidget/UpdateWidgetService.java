@@ -61,7 +61,11 @@ public class UpdateWidgetService extends Service {
 
     String exchangeId = intent.getStringExtra(C.pref_key_exchange);
     if (exchangeId == null) {
-      exchangeId = prefs.getString(C.pref_key_exchange, C.CFG_VREX_LTC);
+      exchangeId = prefs.getString(C.pref_key_exchange, C.EXCH_VREX);
+    }
+    String coin = intent.getStringExtra(C.pref_key_coin);
+    if (coin == null) {
+      coin = prefs.getString(C.pref_key_coin, "LTC");
     }
     String oldWorldCurrency = intent.getStringExtra(C.pref_key_owc);
     if (oldWorldCurrency == null) {
@@ -90,7 +94,7 @@ public class UpdateWidgetService extends Service {
       toastIf("LitecoinWidget: refreshing...", isManualUpdate);
       // it sure would be nice to have an easier way than passing all this shite through here.
       // BUT there appear to be concurrency issues with using fields.
-      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, oldWorldCurrency, txtColor, bgColor, isManualUpdate));
+      new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, coin, oldWorldCurrency, txtColor, bgColor, isManualUpdate));
     }
 
     stopSelf();
@@ -101,13 +105,15 @@ public class UpdateWidgetService extends Service {
   public class PriceTaskArgs {
     public int mWidgetId;
     public String mExchangeId;
+    public String mCoin;
     public String mOldWorldCurrency;
     public int mTxtColor;
     public int mBgColor;
     public boolean mIsManualUpdate;
-    public PriceTaskArgs(int widgetId, String exchangeId, String oldWorldCurrency, int txtColor, int bgColor, boolean isManualUpdate) {
+    public PriceTaskArgs(int widgetId, String exchangeId, String coin, String oldWorldCurrency, int txtColor, int bgColor, boolean isManualUpdate) {
       mWidgetId = widgetId;
       mExchangeId = exchangeId;
+      mCoin = coin;
       mOldWorldCurrency = oldWorldCurrency;
       mTxtColor = txtColor;
       mBgColor = bgColor;
@@ -131,6 +137,7 @@ public class UpdateWidgetService extends Service {
     @Override protected PriceInfo doInBackground(PriceTaskArgs... args) {
       PriceTaskArgs arg = args[0];
       String eid = arg.mExchangeId;
+      String coin = arg.mCoin;
       int wid = arg.mWidgetId;
       String owc = arg.mOldWorldCurrency;
       double priceBTC = 0;
@@ -142,41 +149,21 @@ public class UpdateWidgetService extends Service {
       Downloaders downloaders = new Downloaders(toaster);
       BtcPriceCache cache = new BtcPriceCache(UpdateWidgetService.this.getApplicationContext());
       boolean estimatedPriceOWC = false;
-      if (eid.equals(C.CFG_VREX_LTC)) {
-        priceBTC = downloaders.getVircurexPrice("LTC");
-      } else if (eid.equals(C.CFG_VREX_NMC)) {
-        priceBTC = downloaders.getVircurexPrice("NMC");
-      } else if (eid.equals(C.CFG_VREX_PPC)) {
-        priceBTC = downloaders.getVircurexPrice("PPC");
-      } else if (eid.equals(C.CFG_VREX_TRC)) {
-        priceBTC = downloaders.getVircurexPrice("TRC");
-      } else if (eid.equals(C.CFG_BTCE_PPC)) {
-        priceBTC = downloaders.getBtcePrice("ppc", "btc");
-      } else if (eid.equals(C.CFG_BTCE_TRC)) {
-        priceBTC = downloaders.getBtcePrice("trc", "btc");
-      } else if (eid.equals(C.CFG_BTCE_NMC)) {
-        priceBTC = downloaders.getBtcePrice("nmc", "btc");
-      } else if (eid.equals(C.CFG_BTCE_LTC)) {
-        priceBTC = downloaders.getBtcePrice("ltc", "btc");
-        if (owc.equals("RUR") || owc.equals("USD")) {
-          priceOWC = downloaders.getBtcePrice("ltc", owc.toLowerCase());
+      if (eid.equals(C.EXCH_VREX)) {
+        priceBTC = downloaders.getVircurexPrice(coin);
+      } else if (eid.equals(C.EXCH_BTCE)) {
+        if (coin.equals("BTC") || coin.equals("LTC")) {
+          if (owc.equals("RUR") || owc.equals("USD")) {
+            priceOWC = downloaders.getBtcePrice(coin, owc.toLowerCase());
+          } else {
+            priceOWC = downloaders.getBtcePrice(coin, "usd");
+            priceOWC = convertFromUSD(downloaders, priceOWC, owc);
+            estimatedPriceOWC = true;
+          }
         } else {
-          priceOWC = downloaders.getBtcePrice("ltc", "usd");
-          priceOWC = convertFromUSD(downloaders, priceOWC, owc);
-          estimatedPriceOWC = true;
+          priceBTC = downloaders.getBtcePrice(coin, "btc");
         }
-      } else if (eid.equals(C.CFG_BTCE_BTC)) {
-        if (owc.equals("RUR") || owc.equals("USD")) {
-          priceOWC = downloaders.getBtcePrice("btc", owc.toLowerCase());
-        } else {
-          priceOWC = downloaders.getBtcePrice("btc", "usd");
-          priceOWC = convertFromUSD(downloaders, priceOWC, owc);
-          estimatedPriceOWC = true;
-        }
-        if (owc.equals("USD")) {
-          cache.updatePrice(eid, (float) priceOWC);
-        }
-      } else if (eid.equals(C.CFG_MGOX_BTC)) {
+      } else if (eid.equals(C.EXCH_MGOX)) {
         priceOWC = downloaders.getMtgoxPrice();
         cache.updatePrice(eid, (float) priceOWC);
         if (!owc.equals("USD")) {
@@ -185,7 +172,7 @@ public class UpdateWidgetService extends Service {
         }
       }
       if (!cache.hasRecentPrice()) {
-        cache.updatePrice(C.CFG_MGOX_BTC, (float) downloaders.getMtgoxPrice());
+        cache.updatePrice(C.EXCH_MGOX, (float) downloaders.getMtgoxPrice());
       }
       cache.save(UpdateWidgetService.this.getApplicationContext());
       double mostRecentBtcPrice = cache.getPrice();
@@ -197,25 +184,34 @@ public class UpdateWidgetService extends Service {
           estimatedPriceOWC = true;
         }
       }
-      return new PriceInfo(eid, priceBTC, owc, priceOWC, estimatedPriceOWC, wid, arg.mTxtColor, arg.mBgColor);
+      return new PriceInfo(eid, coin, priceBTC, owc, priceOWC, estimatedPriceOWC, wid, arg.mTxtColor, arg.mBgColor);
     }
 
     @Override protected void onPostExecute(PriceInfo result) {
       RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
         .getApplicationContext().getPackageName(), getWidgetLayout());
 
-      String cfg = result.getExchangeConfig();
-      if (cfg.equals(C.CFG_VREX_LTC) || cfg.equals(C.CFG_BTCE_LTC)) {
-        remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.litecoin);
-      } else if (cfg.equals(C.CFG_BTCE_BTC) || cfg.equals(C.CFG_MGOX_BTC)) {
-        remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.bitcoin);
-      } else if (cfg.equals(C.CFG_VREX_NMC) || cfg.equals(C.CFG_BTCE_NMC)) {
-        remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.namecoin);
-      } else if (cfg.equals(C.CFG_VREX_PPC) || cfg.equals(C.CFG_BTCE_PPC)) {
-        remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.ppcoin);
-      } else if (cfg.equals(C.CFG_VREX_TRC) || cfg.equals(C.CFG_BTCE_TRC)) {
-        remoteViews.setImageViewResource(R.id.widgetpic, R.drawable.terracoin);
+      String exch = result.getExchangeConfig();
+      String coin = result.getCoin();
+      int picId = R.drawable.litecoin;
+      if (coin.equals("LTC")) {
+        picId = R.drawable.litecoin;
+      } else if (coin.equals("BTC")) {
+        picId = R.drawable.bitcoin;
+      } else if (coin.equals("NMC")) {
+        picId = R.drawable.namecoin;
+      } else if (coin.equals("PPC")) {
+        picId = R.drawable.ppcoin;
+      } else if (coin.equals("TRC")) {
+        picId = R.drawable.terracoin;
+      } else if (coin.equals("FTC")) {
+        picId = R.drawable.feathercoin;
+      } else if (coin.equals("NVC")) {
+        picId = R.drawable.novacoin;
+      } else if (coin.equals("DVC")) {
+        picId = R.drawable.devcoin;
       }
+      remoteViews.setImageViewResource(R.id.widgetpic, picId);
       double btcDouble = result.getPriceBTC();
       double owcDouble = result.getPriceOWC();
       // only update if we got some nonzero result:
@@ -223,7 +219,8 @@ public class UpdateWidgetService extends Service {
         // generate a pretty BTC string (if any):
         String btcString = "";
         if (btcDouble != 0) {
-          if (cfg.equals(C.CFG_VREX_PPC)) {
+          // extra precision for these coins:
+          if (coin.equals("PPC") || coin.equals("NMC") || coin.equals("FTC") || coin.equals("DVC")) {
             btcString = "B" + roundBTCX(btcDouble);
           } else {
             btcString = "B" + roundBTC(btcDouble);
@@ -258,7 +255,7 @@ public class UpdateWidgetService extends Service {
         ).toString();
         remoteViews.setTextViewText(R.id.time, dateText);
       }
-      remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(cfg));
+      remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(exch));
       // set text colors:
       int color = result.getTxtColor();
       remoteViews.setTextColor(R.id.exchange_name, color);

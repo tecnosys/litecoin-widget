@@ -117,29 +117,9 @@ public class Downloaders {
     return 0;
   }
 
-  public double getBitfloorPriceBTCUSD() {
-    try {
-      URL url = new URL("https://api.bitfloor.com/book/L1/1");
-      String json = downloadReq(url);
-      if (json == null) return 0;
-      try {
-        JSONObject j = new JSONObject(json);
-        double bid = j.getJSONArray("bid").getDouble(0);
-        double ask = j.getJSONArray("ask").getDouble(0);
-        double price = (bid + ask) / 2;
-        return price;
-      } catch (JSONException e) {
-        toastLong("jsonException parsing: " + json);
-      }
-    } catch (MalformedURLException e) {
-      assert false;
-    }
-    return 0;
-  }
-
   public double getVircurexPrice(String coin) {
     try {
-      URL url = new URL("https://vircurex.com/api/get_last_trade.json?base=" + coin + "&alt=BTC");
+      URL url = new URL("https://vircurex.com/api/get_last_trade.json?base=" + coin.toUpperCase() + "&alt=BTC");
       String json = downloadReq(url);
       if (json == null) return 0;
       try {
@@ -159,7 +139,8 @@ public class Downloaders {
 
   public double getBtcePrice(String coin, String in) {
     try {
-      URL url = new URL("https://btc-e.com/api/2/" + coin + "_" + in + "/ticker");
+      URL url = new URL("https://btc-e.com/api/2/"
+          + coin.toLowerCase() + "_" + in.toLowerCase() + "/ticker");
       String json = downloadReq(url);
       if (json == null) return 0;
       try {

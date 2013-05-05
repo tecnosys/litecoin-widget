@@ -3,6 +3,7 @@ package org.phauna.litecoinwidget;
 public class PriceInfo {
 
   private String mExchangeConfig;
+  private String mCoin;
   private int mWidgetId;
   private double mPriceBTC;
   private String mOwc;
@@ -11,7 +12,8 @@ public class PriceInfo {
   private int mTxtColor;
   private int mBgColor;
 
-  public PriceInfo(String exchangeConfig, double priceBTC, String owc, double priceOWC, boolean estimatedPriceOWC, int widgetId, int txtColor, int bgColor) {
+  public PriceInfo(String exchangeConfig, String coin, double priceBTC, String owc, double priceOWC, boolean estimatedPriceOWC, int widgetId, int txtColor, int bgColor) {
+    mCoin = coin;
     mExchangeConfig = exchangeConfig;
     mPriceBTC = priceBTC;
     mOwc = owc;
@@ -24,6 +26,10 @@ public class PriceInfo {
 
   public String getExchangeConfig() {
     return mExchangeConfig;
+  }
+
+  public String getCoin() {
+    return mCoin;
   }
 
   public String getOWC() {

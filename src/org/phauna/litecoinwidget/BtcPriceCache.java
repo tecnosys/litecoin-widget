@@ -65,8 +65,8 @@ public class BtcPriceCache {
   }
 
   public static int scoreExchange(String e) {
-    if (e.equals(C.CFG_MGOX_BTC)) return 2;
-    if (e.equals(C.CFG_BTCE_BTC)) return 1;
+    if (e.equals(C.EXCH_MGOX)) return 2;
+    if (e.equals(C.EXCH_BTCE)) return 1;
     return 0;
   }
 
@@ -75,8 +75,8 @@ public class BtcPriceCache {
   }
 
   public void updatePrice(String newPriceExchange, float newPrice) {
-    assert(newPriceExchange.equals(C.CFG_BTCE_BTC)
-        || newPriceExchange.equals(C.CFG_MGOX_BTC));
+    assert(newPriceExchange.equals(C.EXCH_BTCE)
+        || newPriceExchange.equals(C.EXCH_MGOX));
     Date now = new Date();
     if (now.getTime() - mPriceDate.getTime() > 1000*60*5) {
       // if we're older than five minutes, update no matter what

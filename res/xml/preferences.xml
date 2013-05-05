@@ -14,12 +14,20 @@
    android:entryValues="@array/array_exchange_values"
    android:defaultValue="vircurex_ltc"
    />
+ <ListPreference
+   android:title="@string/pref_coin"
+   android:key="pref_key_coin"
+   android:summary="@string/pref_summary_coin"
+   android:entries="@array/array_vrex_coins"
+   android:entryValues="@array/array_vrex_coins"
+   android:defaultValue="LTC"
+   />
  <ListPreference
    android:title="@string/pref_owc"
    android:key="pref_key_owc"
    android:summary="@string/pref_summary_owc"
    android:entries="@array/array_owc_names"
-   android:entryValues="@array/array_owc_values"
+   android:entryValues="@array/array_owc_names"
    android:defaultValue="USD"
  />
  <net.margaritov.preference.colorpicker.ColorPickerPreference
