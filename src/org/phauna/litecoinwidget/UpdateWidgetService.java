@@ -176,7 +176,8 @@ public class UpdateWidgetService extends Service {
             priceOWC = convertFromUSD(downloaders, priceOWC, owc);
             estimatedPriceOWC = true;
           }
-        } else {
+        }
+        if (!coin.equals("BTC")) {
           priceBTC = downloaders.getBtcePrice(coin, "btc");
         }
       } else if (eid.equals(C.EXCH_MGOX)) {
