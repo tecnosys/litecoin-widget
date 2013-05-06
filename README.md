@@ -1,6 +1,6 @@
 It's called "Litecoin Widget", but it's been stretching that definition lately.
 
-The widget will show you prices for BTC, LTC, NMC, PPC, and TRC. Prices come mostly from vircurex and btc-e, but also mtgox and bitfloor for BTC.
+The widget will show you prices for BTC, LTC, NMC, PPC, TRC, and FTC. Prices come mostly from vircurex and btc-e, but also mtgox for BTC.
 
 Prices are quoted in terms of BTC (for alt coins), and the old-world currency of your choice (for all coins).
 
