@@ -158,6 +158,44 @@ public class Downloaders {
     return 0;
   }
 
+  public double getBitstampPrice() {
+    try {
+      URL url = new URL("https://www.bitstamp.net/api/ticker/");
+      String json = downloadReq(url);
+      if (json == null) return 0;
+      try {
+        JSONObject j = new JSONObject(json);
+        double last = j.getDouble("last");
+        return last;
+      } catch (JSONException e) {
+        toastLong("jsonException parsing: " + json);
+      }
+    } catch (MalformedURLException e) {
+      assert false;
+    }
+
+    return 0;
+  }
+
+  public double getCampBXPrice() {
+    try {
+      URL url = new URL("http://CampBX.com/api/xticker.php");
+      String json = downloadReq(url);
+      if (json == null) return 0;
+      try {
+        JSONObject j = new JSONObject(json);
+        double last = j.getDouble("Last Trade");
+        return last;
+      } catch (JSONException e) {
+        toastLong("jsonException parsing: " + json);
+      }
+    } catch (MalformedURLException e) {
+      assert false;
+    }
+
+    return 0;
+  }
+
   public String downloadReq(URL url) {
     InputStream in = null;
     OutputStream out = null;

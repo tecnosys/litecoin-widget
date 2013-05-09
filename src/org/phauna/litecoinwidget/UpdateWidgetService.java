@@ -187,6 +187,20 @@ public class UpdateWidgetService extends Service {
           priceOWC = convertFromUSD(downloaders, priceOWC, owc);
           estimatedPriceOWC = true;
         }
+      } else if (eid.equals(C.EXCH_BSTP)) {
+        priceOWC = downloaders.getBitstampPrice();
+        cache.updatePrice(eid, (float) priceOWC);
+        if (!owc.equals("USD")) {
+          priceOWC = convertFromUSD(downloaders, priceOWC, owc);
+          estimatedPriceOWC = true;
+        }
+      } else if (eid.equals(C.EXCH_CPBX)) {
+        priceOWC = downloaders.getCampBXPrice();
+        cache.updatePrice(eid, (float) priceOWC);
+        if (!owc.equals("USD")) {
+          priceOWC = convertFromUSD(downloaders, priceOWC, owc);
+          estimatedPriceOWC = true;
+        }
       }
       if (!cache.hasRecentPrice()) {
         cache.updatePrice(C.EXCH_MGOX, (float) downloaders.getMtgoxPrice());
@@ -223,6 +237,8 @@ public class UpdateWidgetService extends Service {
         picId = R.drawable.terracoin;
       } else if (coin.equals("FTC")) {
         picId = R.drawable.feathercoin;
+      } else if (coin.equals("FRC")) {
+        picId = R.drawable.freicoin;
       } else if (coin.equals("NVC")) {
         picId = R.drawable.novacoin;
       } else if (coin.equals("DVC")) {
@@ -237,7 +253,7 @@ public class UpdateWidgetService extends Service {
         String btcString = "";
         if (btcDouble != 0) {
           // extra precision for these coins:
-          if (coin.equals("PPC") || coin.equals("NMC") || coin.equals("FTC") || coin.equals("DVC")) {
+          if (coin.equals("PPC") || coin.equals("NMC") || coin.equals("FTC") || coin.equals ("FRC") || coin.equals("DVC")) {
             btcString = "B" + roundBTCX(btcDouble);
           } else {
             btcString = "B" + roundBTC(btcDouble);

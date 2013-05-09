@@ -18,8 +18,9 @@
    android:title="@string/pref_coin"
    android:key="pref_key_coin"
    android:summary="@string/pref_summary_coin"
-   android:entries="@array/array_vrex_coins"
-   android:entryValues="@array/array_vrex_coins"
+   android:entries="@array/array_init_coins"
+   android:entryValues="@array/array_init_coins"
+   android:enabled="false"
    android:defaultValue="LTC"
    />
  <ListPreference

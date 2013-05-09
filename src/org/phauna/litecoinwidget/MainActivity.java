@@ -3,11 +3,12 @@ package org.phauna.litecoinwidget;
 import android.app.Activity;
 import android.preference.PreferenceActivity;
 import android.os.Bundle;
+import android.os.Build;
 
 import android.os.AsyncTask;
 import android.util.Log;
 import android.app.Activity;
-//import android.support.v4.app.FragmentActivity;
+import android.app.AlertDialog;
 import android.widget.Toast;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -19,6 +20,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.SharedPreferences.Editor;
 import android.content.Intent;
+import android.content.Context;
 import android.widget.Button;
 import android.view.View;
 import android.widget.TextView;
@@ -55,6 +57,24 @@ public class MainActivity extends PreferenceActivity implements
       finish();
     }
 
+    SharedPreferences allWidgetPrefs = getSharedPreferences("allwidgets", Context.MODE_PRIVATE);
+
+    boolean firstrun = allWidgetPrefs.getBoolean(C.firstrun, true);
+    if (firstrun) {
+      new AlertDialog.Builder(this).setTitle("announcement")
+          .setMessage("If your widgets stop working after an update, "
+                     + "try deleting and re-adding them to the desktop.")
+          .setNeutralButton("OK", null).show();
+
+      SharedPreferences.Editor e = allWidgetPrefs.edit();
+      e.putBoolean(C.firstrun, false);
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+        e.apply();
+      } else {
+        e.commit();
+      }
+    }
+
     String prefsName = "widget" + mAppWidgetId;
     PreferenceManager manager = getPreferenceManager();
     manager.setSharedPreferencesName(prefsName);
@@ -71,6 +91,7 @@ public class MainActivity extends PreferenceActivity implements
       CharSequence[] entries = getResources().getStringArray(C.exchangeCoins(exchange));
       cPref.setEntries(entries);
       cPref.setEntryValues(entries);
+      cPref.setEnabled(true);
     }
     if (key.equals(C.pref_key_coin)) {
       String coin = prefs.getString(C.pref_key_coin, "LTC");

@@ -4,11 +4,15 @@
   <item>Vircurex</item>
   <item>Btc-e</item>
   <item>Mtgox</item>
+  <item>Bitstamp</item>
+  <item>Campbx</item>
  </string-array>
  <string-array name="array_exchange_values">
   <item>exch_vrex</item>
   <item>exch_btce</item>
   <item>exch_mgox</item>
+  <item>exch_bstp</item>
+  <item>exch_cpbx</item>
  </string-array>
 
  <string-array name="array_vrex_coins">
@@ -17,10 +21,15 @@
   <item>PPC</item>
   <item>TRC</item>
   <item>FTC</item>
+  <item>FRC</item>
  </string-array>
 
  <string-array name="array_mgox_coins">
   <item>BTC</item>
+ </string-array>
+
+ <string-array name="array_init_coins">
+  <item>select an exchange first</item>
  </string-array>
 
  <string-array name="array_btce_coins">

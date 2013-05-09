@@ -6,13 +6,15 @@ public class C {
   public static final String EXCH_VREX = "exch_vrex";
   public static final String EXCH_MGOX = "exch_mgox";
   public static final String EXCH_BTCE = "exch_btce";
+  public static final String EXCH_BSTP = "exch_bstp";
+  public static final String EXCH_CPBX = "exch_cpbx";
 
   public static int exchangeCoins(String exchange) {
     if (   exchange.equals(EXCH_VREX)) {
       return R.array.array_vrex_coins;
     } else if (exchange.equals(EXCH_BTCE)) {
       return R.array.array_btce_coins;
-    } else if (exchange.equals(EXCH_MGOX)) {
+    } else if (exchange.equals(EXCH_MGOX) || exchange.equals(EXCH_CPBX) || exchange.equals(EXCH_BSTP)) {
       return R.array.array_mgox_coins;
     } else {
       return -1;
@@ -40,6 +42,10 @@ public class C {
       return "Btc-e";
     } else if (exchange.equals(EXCH_MGOX)) {
       return "Mtgox";
+    } else if (exchange.equals(EXCH_BSTP)) {
+      return "stamp";
+    } else if (exchange.equals(EXCH_CPBX)) {
+      return "cmpBX";
     } else {
       return "???";
     }
@@ -57,6 +63,8 @@ public class C {
   public static final String pref_key_bgcolor       = "pref_key_bgcolor";
 
   public static final String LOG = "org.phauna.litecoinwidget";
+
+  public static final String firstrun = "firstrun";
 
   public static final String USD = "USD";
   public static final String EUR = "EUR";
