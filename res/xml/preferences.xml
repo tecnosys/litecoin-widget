@@ -12,7 +12,7 @@
    android:summary="@string/pref_summary_exchange"
    android:entries="@array/array_exchanges"
    android:entryValues="@array/array_exchange_values"
-   android:defaultValue="vircurex_ltc"
+   android:defaultValue="exch_vrex"
    />
  <ListPreference
    android:title="@string/pref_coin"
