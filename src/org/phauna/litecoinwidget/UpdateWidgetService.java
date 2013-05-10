@@ -269,10 +269,7 @@ public class UpdateWidgetService extends Service {
         }
 
         if (owcString.equals("")) {
-          remoteViews.setViewVisibility(R.id.priceOWC, View.GONE);
-        } else {
-          remoteViews.setViewVisibility(R.id.priceOWC, View.VISIBLE);
-          remoteViews.setTextViewText(R.id.priceOWC, owcString);
+          owcString = " ";
         }
 
         if (btcString.equals("")) {
@@ -280,6 +277,8 @@ public class UpdateWidgetService extends Service {
           // price when there is none.
           btcString = " ";
         }
+
+        remoteViews.setTextViewText(R.id.priceOWC, owcString);
         remoteViews.setTextViewText(R.id.priceBTC, btcString);
 
         long now = new Date().getTime();

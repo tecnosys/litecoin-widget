@@ -101,7 +101,7 @@ public class Downloaders {
 
   public double getMtgoxPrice() {
     try {
-      URL url = new URL("http://data.mtgox.com/api/1/BTCUSD/ticker");
+      URL url = new URL("https://data.mtgox.com/api/1/BTCUSD/ticker");
       String json = downloadReq(url);
       if (json == null) return 0;
       try {
