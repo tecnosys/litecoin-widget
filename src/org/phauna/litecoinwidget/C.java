@@ -8,13 +8,14 @@ public class C {
   public static final String EXCH_BTCE = "exch_btce";
   public static final String EXCH_BSTP = "exch_bstp";
   public static final String EXCH_CPBX = "exch_cpbx";
+  public static final String EXCH_CBSE = "exch_cbse";
 
   public static int exchangeCoins(String exchange) {
     if (   exchange.equals(EXCH_VREX)) {
       return R.array.array_vrex_coins;
     } else if (exchange.equals(EXCH_BTCE)) {
       return R.array.array_btce_coins;
-    } else if (exchange.equals(EXCH_MGOX) || exchange.equals(EXCH_CPBX) || exchange.equals(EXCH_BSTP)) {
+    } else if (exchange.equals(EXCH_MGOX) || exchange.equals(EXCH_CPBX) || exchange.equals(EXCH_BSTP) || exchange.equals(EXCH_CBSE)) {
       return R.array.array_mgox_coins;
     } else {
       return -1;
@@ -46,6 +47,8 @@ public class C {
       return "stamp";
     } else if (exchange.equals(EXCH_CPBX)) {
       return "cmpBX";
+    } else if (exchange.equals(EXCH_CBSE)) {
+      return "C'bse";
     } else {
       return "???";
     }

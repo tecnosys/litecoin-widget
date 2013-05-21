@@ -99,6 +99,24 @@ public class Downloaders {
     return -1;
   }
 
+  public double getCoinbasePrice() {
+    try {
+      URL url = new URL("https://coinbase.com/api/v1/currencies/exchange_rates");
+      String json = downloadReq(url);
+      if (json == null) return 0;
+      try {
+        JSONObject j = new JSONObject(json);
+        double price = j.getDouble("btc_to_usd");
+        return price;
+      } catch (JSONException e) {
+        toastLong("jsonException parsing: " + json);
+      }
+    } catch (MalformedURLException e) {
+      assert false;
+    }
+    return 0;
+  }
+
   public double getMtgoxPrice() {
     try {
       URL url = new URL("https://data.mtgox.com/api/1/BTCUSD/ticker");

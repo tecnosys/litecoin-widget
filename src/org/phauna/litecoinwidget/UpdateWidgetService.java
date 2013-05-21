@@ -187,6 +187,13 @@ public class UpdateWidgetService extends Service {
           priceOWC = convertFromUSD(downloaders, priceOWC, owc);
           estimatedPriceOWC = true;
         }
+      } else if (eid.equals(C.EXCH_CBSE)) {
+        priceOWC = downloaders.getCoinbasePrice();
+        cache.updatePrice(eid, (float) priceOWC);
+        if (!owc.equals("USD")) {
+          priceOWC = convertFromUSD(downloaders, priceOWC, owc);
+          estimatedPriceOWC = true;
+        }
       } else if (eid.equals(C.EXCH_BSTP)) {
         priceOWC = downloaders.getBitstampPrice();
         cache.updatePrice(eid, (float) priceOWC);
