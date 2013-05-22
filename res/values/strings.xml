@@ -7,7 +7,7 @@
  <string name="pref_exchange">Exchange</string>
  <string name="pref_summary_exchange">select an exchange</string>
  <string name="pref_coin">Coin</string>
- <string name="pref_summary_coin">select a coin</string>
+ <string name="pref_summary_coin">select an exchange first</string>
 
  <string name="pref_owc">Old World Currency</string>
  <string name="pref_summary_owc">for displaying estimates (default: USD)</string>

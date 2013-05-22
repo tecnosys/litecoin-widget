@@ -84,6 +84,8 @@ public class MainActivity extends PreferenceActivity implements
 
   public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
     if (key.equals(C.pref_key_exchange)) {
+      // this editor is for saving the default coin preference when they switch exchanges
+      SharedPreferences.Editor e = prefs.edit();
       String exchange = prefs.getString(C.pref_key_exchange, C.EXCH_VREX);
       Preference ePref = findPreference(C.pref_key_exchange);
       ePref.setSummary(C.exchangeName(exchange));
@@ -91,7 +93,15 @@ public class MainActivity extends PreferenceActivity implements
       CharSequence[] entries = getResources().getStringArray(C.exchangeCoins(exchange));
       cPref.setEntries(entries);
       cPref.setEntryValues(entries);
+      String defaultCoin = entries[0].toString();
+      e.putString(C.pref_key_coin, defaultCoin);
+      cPref.setSummary(defaultCoin);
       cPref.setEnabled(true);
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+        e.apply();
+      } else {
+        e.commit();
+      }
     }
     if (key.equals(C.pref_key_coin)) {
       String coin = prefs.getString(C.pref_key_coin, "LTC");
@@ -103,6 +113,8 @@ public class MainActivity extends PreferenceActivity implements
       Preference ePref = findPreference(C.pref_key_owc);
       ePref.setSummary(owc);
     }
+
+
     if (key.equals(C.pref_key_done)) {
       // Update the widget via the service
       Intent intent = new Intent(getApplicationContext(), UpdateWidgetService.class);
@@ -112,7 +124,8 @@ public class MainActivity extends PreferenceActivity implements
       String exchange = prefs.getString(C.pref_key_exchange, C.EXCH_VREX);
       Log.d(C.LOG, "MainActivity (" + mAppWidgetId + ") putting exchange: " + exchange);
       intent.putExtra(C.pref_key_exchange, exchange);
-      String coin = prefs.getString(C.pref_key_coin, "LTC");
+      CharSequence[] entries = getResources().getStringArray(C.exchangeCoins(exchange));
+      String coin = prefs.getString(C.pref_key_coin, entries[0].toString());
       Log.d(C.LOG, "MainActivity (" + mAppWidgetId + ") putting coin: " + coin);
       intent.putExtra(C.pref_key_coin, coin);
       intent.putExtra(C.pref_key_owc, prefs.getString(C.pref_key_owc, C.USD));

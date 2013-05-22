@@ -35,8 +35,8 @@
  </string-array>
 
  <string-array name="array_btce_coins">
-  <item>BTC</item>
   <item>LTC</item>
+  <item>BTC</item>
   <item>NMC</item>
   <item>PPC</item>
   <item>TRC</item>

@@ -21,7 +21,6 @@
    android:entries="@array/array_init_coins"
    android:entryValues="@array/array_init_coins"
    android:enabled="false"
-   android:defaultValue="LTC"
    />
  <ListPreference
    android:title="@string/pref_owc"
