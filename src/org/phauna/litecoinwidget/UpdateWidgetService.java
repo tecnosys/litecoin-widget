@@ -16,6 +16,7 @@ import java.util.Date;
 import android.text.format.DateUtils;
 import android.content.Context;
 import android.widget.Toast;
+import android.app.AlarmManager;
 
 import android.graphics.Color;
 import android.graphics.Canvas;
@@ -49,12 +50,12 @@ public class UpdateWidgetService extends Service {
   // there are a number of cases in onStart that we don't want to update
   // the screen, but we still want to install the click handler. That's what
   // this method does.
-  private void doNotUpdate(int widgetId) {
+  private void doNotUpdate(int widgetId, int updateInterval) {
     int layout_id = getWidgetLayout();
     RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
       .getApplicationContext().getPackageName(),
       layout_id);
-    refreshWhenClicked(widgetId, remoteViews);
+    refreshWhenClicked(widgetId, remoteViews, updateInterval);
     stopSelf();
   }
 
@@ -66,16 +67,24 @@ public class UpdateWidgetService extends Service {
       return;
     }
 
+    Log.d(C.LOG, "UpdateWidgetService.onStart " + widgetId);
+
     boolean isManualUpdate = intent.getBooleanExtra(C.EXTRA_IS_MANUAL_UPDATE, false);
 
     SharedPreferences prefs =
       this.getApplicationContext().getSharedPreferences("widget" + widgetId, Context.MODE_PRIVATE);
 
+    String updateIntervalString = intent.getStringExtra(C.pref_key_interval);
+    if (updateIntervalString == null) {
+      updateIntervalString = prefs.getString(C.pref_key_interval, C.DEFAULT_INTERVAL);
+    }
+
+    int updateInterval = Integer.parseInt(updateIntervalString);
     String exchangeId = intent.getStringExtra(C.pref_key_exchange);
     if (exchangeId == null) {
       exchangeId = prefs.getString(C.pref_key_exchange, null);
       if (exchangeId == null) {
-        doNotUpdate(widgetId);
+        doNotUpdate(widgetId, updateInterval);
         return;
       }
     }
@@ -83,7 +92,7 @@ public class UpdateWidgetService extends Service {
     if (coin == null) {
       coin = prefs.getString(C.pref_key_coin, null);
       if (coin == null) {
-        doNotUpdate(widgetId);
+        doNotUpdate(widgetId, updateInterval);
         return;
       }
     }
@@ -105,36 +114,17 @@ public class UpdateWidgetService extends Service {
     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
     if (networkInfo == null || (!networkInfo.isConnected())) {
       toastIf("LitecoinWidget: no network connection", isManualUpdate);
-      doNotUpdate(widgetId);
+      doNotUpdate(widgetId, updateInterval);
       return;
     }
 
     toastIf("LitecoinWidget: refreshing...", isManualUpdate);
     // it sure would be nice to have an easier way than passing all this shite through here.
     // BUT there appear to be concurrency issues with using fields.
-    new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, coin, oldWorldCurrency, txtColor, bgColor, isManualUpdate));
+    new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, coin, oldWorldCurrency, txtColor, bgColor, isManualUpdate, updateInterval));
 
     stopSelf();
     super.onStart(intent, startId);
-  }
-
-  public class PriceTaskArgs {
-    public int mWidgetId;
-    public String mExchangeId;
-    public String mCoin;
-    public String mOldWorldCurrency;
-    public int mTxtColor;
-    public int mBgColor;
-    public boolean mIsManualUpdate;
-    public PriceTaskArgs(int widgetId, String exchangeId, String coin, String oldWorldCurrency, int txtColor, int bgColor, boolean isManualUpdate) {
-      mWidgetId = widgetId;
-      mExchangeId = exchangeId;
-      mCoin = coin;
-      mOldWorldCurrency = oldWorldCurrency;
-      mTxtColor = txtColor;
-      mBgColor = bgColor;
-      mIsManualUpdate = isManualUpdate;
-    }
   }
 
   public class GetPriceTask extends AsyncTask<PriceTaskArgs, Toasty, PriceInfo> {
@@ -155,6 +145,7 @@ public class UpdateWidgetService extends Service {
       String eid = arg.mExchangeId;
       String coin = arg.mCoin;
       int wid = arg.mWidgetId;
+      int updateInterval = arg.mUpdateInterval;
       String owc = arg.mOldWorldCurrency;
       double priceBTC = 0;
       double priceOWC = 0;
@@ -222,15 +213,16 @@ public class UpdateWidgetService extends Service {
           estimatedPriceOWC = true;
         }
       }
-      return new PriceInfo(eid, coin, priceBTC, owc, priceOWC, estimatedPriceOWC, wid, arg.mTxtColor, arg.mBgColor);
+      return new PriceInfo(arg, priceBTC, priceOWC, estimatedPriceOWC);
     }
 
     @Override protected void onPostExecute(PriceInfo result) {
       RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
         .getApplicationContext().getPackageName(), getWidgetLayout());
 
-      String exch = result.getExchangeConfig();
-      String coin = result.getCoin();
+      PriceTaskArgs args = result.getPriceTaskArgs();
+      String exch = args.mExchangeId;
+      String coin = args.mCoin;
       int picId = R.drawable.litecoin;
       if (coin.equals("LTC")) {
         picId = R.drawable.litecoin;
@@ -269,7 +261,7 @@ public class UpdateWidgetService extends Service {
         // generate a pretty USD string (if any):
         String owcString = "";
         if (owcDouble != 0) {
-          owcString = C.currencySymbol(result.getOWC()) + roundOWC(owcDouble);
+          owcString = C.currencySymbol(args.mOldWorldCurrency) + roundOWC(owcDouble);
           if (result.isEstimatedPriceOWC()) {
             owcString += "*";
           }
@@ -296,27 +288,26 @@ public class UpdateWidgetService extends Service {
       }
       remoteViews.setTextViewText(R.id.exchange_name, C.exchangeName(exch));
       // set text colors:
-      int color = result.getTxtColor();
+      int color = args.mTxtColor;
       remoteViews.setTextColor(R.id.exchange_name, color);
       remoteViews.setTextColor(R.id.priceBTC, color);
       remoteViews.setTextColor(R.id.priceOWC, color);
       remoteViews.setTextColor(R.id.time, color);
 
       // set background color and transparency:
-      int bgColor = result.getBgColor();
+      int bgColor = args.mBgColor;
       remoteViews.setImageViewBitmap(R.id.BackgroundImageView,
         getBackground(UpdateWidgetService.this.getApplicationContext(), bgColor)
       );
 
-      refreshWhenClicked(result.getWidgetId(), remoteViews);
+      refreshWhenClicked(args.mWidgetId, remoteViews, args.mUpdateInterval);
 
     }
 
   }
 
-  void refreshWhenClicked(int widgetId, RemoteViews remoteViews) {
-    Intent clickIntent = new Intent(this.getApplicationContext(),
-        UpdateWidgetService.class);
+  void refreshWhenClicked(int widgetId, RemoteViews remoteViews, int updateInterval) {
+    Intent clickIntent = new Intent(this.getApplicationContext(), UpdateWidgetService.class);
     clickIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
     clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
     clickIntent.putExtra(C.EXTRA_IS_MANUAL_UPDATE, true);
@@ -331,6 +322,19 @@ public class UpdateWidgetService extends Service {
       UpdateWidgetService.this.getApplicationContext()
     );
     appWidgetManager.updateAppWidget(widgetId, remoteViews);
+
+    // also set up the alarm:
+    if (updateInterval != 1800) {
+      AlarmManager am = (AlarmManager) this.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+      Intent intent = new Intent(this.getApplicationContext(), UpdateWidgetService.class);
+      intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+      intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+      intent.setData(Uri.parse("widget:" + widgetId));
+      PendingIntent pi = PendingIntent.getService(
+          UpdateWidgetService.this.getApplicationContext(),
+          0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+      am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 1000 * updateInterval, pi);
+    }
   }
 
   static double convertFromUSD(Downloaders downloaders, double priceUSD, String toCurrency) {

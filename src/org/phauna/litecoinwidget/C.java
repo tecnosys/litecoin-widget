@@ -55,6 +55,7 @@ public class C {
   }
 
   public static final String pref_key_exchange      = "pref_key_exchange";
+  public static final String pref_key_interval      = "pref_key_interval";
   public static final String pref_key_coin          = "pref_key_coin";
   public static final String pref_key_transparbar   = "pref_key_transparbar";
   public static final String pref_key_rate_price    = "pref_key_rate_price";
@@ -76,6 +77,8 @@ public class C {
 
   public static final int DEFAULT_COLOR_TEXT = 0xffC9C9C9;
   public static final int DEFAULT_COLOR_BG = 0xbb494949;
+
+  public static final String DEFAULT_INTERVAL = "1800";
 
   public static final String EXTRA_IS_MANUAL_UPDATE = "extra_is_manual_update";
 

@@ -30,6 +30,14 @@
    android:entryValues="@array/array_owc_names"
    android:defaultValue="USD"
  />
+ <ListPreference
+   android:title="@string/pref_interval"
+   android:key="pref_key_interval"
+   android:summary="@string/pref_summary_interval"
+   android:entries="@array/array_interval_names"
+   android:entryValues="@array/array_intervals"
+   android:defaultValue="1800"
+ />
  <net.margaritov.preference.colorpicker.ColorPickerPreference
    android:key="pref_key_txtcolor"
    android:title="@string/pref_txtcolor"

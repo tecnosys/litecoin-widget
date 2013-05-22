@@ -54,6 +54,23 @@
    <item>RUR</item>
  </string-array>
 
+ <string-array name="array_intervals">
+  <item>1800</item>
+  <item>900</item>
+  <item>600</item>
+  <item>120</item>
+  <item>60</item>
+  <item>30</item>
+ </string-array>
+ <string-array name="array_interval_names">
+  <item>30 minutes</item>
+  <item>15 minutes</item>
+  <item>5 minutes</item>
+  <item>2 minutes</item>
+  <item>1 minute</item>
+  <item>30 seconds</item>
+ </string-array>
+
  <string-array name="array_color_names">
    <item>light grey</item>
    <item>dark blue</item>
