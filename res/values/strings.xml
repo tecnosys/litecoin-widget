@@ -3,6 +3,7 @@
  <string name="app_name">Litecoin Widget</string>
 
  <string name="pref_category_data">Settings</string>
+ <string name="pref_category_ad">Advertisement:</string>
 
  <string name="pref_exchange">Exchange</string>
  <string name="pref_summary_exchange">select an exchange</string>

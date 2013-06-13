@@ -50,12 +50,12 @@ public class UpdateWidgetService extends Service {
   // there are a number of cases in onStart that we don't want to update
   // the screen, but we still want to install the click handler. That's what
   // this method does.
-  private void doNotUpdate(int widgetId, int updateInterval) {
+  private void doNotUpdate(int widgetId) {
     int layout_id = getWidgetLayout();
     RemoteViews remoteViews = new RemoteViews(UpdateWidgetService.this
       .getApplicationContext().getPackageName(),
       layout_id);
-    refreshWhenClicked(widgetId, remoteViews, updateInterval);
+    refreshWhenClicked(widgetId, remoteViews);
     stopSelf();
   }
 
@@ -74,17 +74,11 @@ public class UpdateWidgetService extends Service {
     SharedPreferences prefs =
       this.getApplicationContext().getSharedPreferences("widget" + widgetId, Context.MODE_PRIVATE);
 
-    String updateIntervalString = intent.getStringExtra(C.pref_key_interval);
-    if (updateIntervalString == null) {
-      updateIntervalString = prefs.getString(C.pref_key_interval, C.DEFAULT_INTERVAL);
-    }
-
-    int updateInterval = Integer.parseInt(updateIntervalString);
     String exchangeId = intent.getStringExtra(C.pref_key_exchange);
     if (exchangeId == null) {
       exchangeId = prefs.getString(C.pref_key_exchange, null);
       if (exchangeId == null) {
-        doNotUpdate(widgetId, updateInterval);
+        doNotUpdate(widgetId);
         return;
       }
     }
@@ -92,7 +86,7 @@ public class UpdateWidgetService extends Service {
     if (coin == null) {
       coin = prefs.getString(C.pref_key_coin, null);
       if (coin == null) {
-        doNotUpdate(widgetId, updateInterval);
+        doNotUpdate(widgetId);
         return;
       }
     }
@@ -114,14 +108,14 @@ public class UpdateWidgetService extends Service {
     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
     if (networkInfo == null || (!networkInfo.isConnected())) {
       toastIf("LitecoinWidget: no network connection", isManualUpdate);
-      doNotUpdate(widgetId, updateInterval);
+      doNotUpdate(widgetId);
       return;
     }
 
     toastIf("LitecoinWidget: refreshing...", isManualUpdate);
     // it sure would be nice to have an easier way than passing all this shite through here.
     // BUT there appear to be concurrency issues with using fields.
-    new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, coin, oldWorldCurrency, txtColor, bgColor, isManualUpdate, updateInterval));
+    new GetPriceTask().execute(new PriceTaskArgs(widgetId, exchangeId, coin, oldWorldCurrency, txtColor, bgColor, isManualUpdate));
 
     stopSelf();
     super.onStart(intent, startId);
@@ -145,7 +139,6 @@ public class UpdateWidgetService extends Service {
       String eid = arg.mExchangeId;
       String coin = arg.mCoin;
       int wid = arg.mWidgetId;
-      int updateInterval = arg.mUpdateInterval;
       String owc = arg.mOldWorldCurrency;
       double priceBTC = 0;
       double priceOWC = 0;
@@ -300,13 +293,13 @@ public class UpdateWidgetService extends Service {
         getBackground(UpdateWidgetService.this.getApplicationContext(), bgColor)
       );
 
-      refreshWhenClicked(args.mWidgetId, remoteViews, args.mUpdateInterval);
+      refreshWhenClicked(args.mWidgetId, remoteViews);
 
     }
 
   }
 
-  void refreshWhenClicked(int widgetId, RemoteViews remoteViews, int updateInterval) {
+  void refreshWhenClicked(int widgetId, RemoteViews remoteViews) {
     Intent clickIntent = new Intent(this.getApplicationContext(), UpdateWidgetService.class);
     clickIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
     clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
@@ -323,18 +316,6 @@ public class UpdateWidgetService extends Service {
     );
     appWidgetManager.updateAppWidget(widgetId, remoteViews);
 
-    // also set up the alarm:
-    if (updateInterval != 1800) {
-      AlarmManager am = (AlarmManager) this.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-      Intent intent = new Intent(this.getApplicationContext(), UpdateWidgetService.class);
-      intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-      intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-      intent.setData(Uri.parse("widget:" + widgetId));
-      PendingIntent pi = PendingIntent.getService(
-          UpdateWidgetService.this.getApplicationContext(),
-          0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-      am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 1000 * updateInterval, pi);
-    }
   }
 
   static double convertFromUSD(Downloaders downloaders, double priceUSD, String toCurrency) {

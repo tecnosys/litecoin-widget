@@ -113,11 +113,6 @@ public class MainActivity extends PreferenceActivity implements
       Preference ePref = findPreference(C.pref_key_owc);
       ePref.setSummary(owc);
     }
-    if (key.equals(C.pref_key_interval)) {
-      String interval = prefs.getString(C.pref_key_interval, C.DEFAULT_INTERVAL);
-      Preference p = findPreference(C.pref_key_interval);
-      p.setSummary(interval + " seconds");
-    }
 
 
     if (key.equals(C.pref_key_done)) {
@@ -133,7 +128,6 @@ public class MainActivity extends PreferenceActivity implements
       String coin = prefs.getString(C.pref_key_coin, entries[0].toString());
       Log.d(C.LOG, "MainActivity (" + mAppWidgetId + ") putting coin: " + coin);
       intent.putExtra(C.pref_key_coin, coin);
-      intent.putExtra(C.pref_key_interval, prefs.getString(C.pref_key_interval, C.DEFAULT_INTERVAL));
       intent.putExtra(C.pref_key_owc, prefs.getString(C.pref_key_owc, C.USD));
       intent.putExtra(C.pref_key_txtcolor, prefs.getInt(C.pref_key_txtcolor, C.DEFAULT_COLOR_TEXT));
       intent.putExtra(C.pref_key_bgcolor, prefs.getInt(C.pref_key_bgcolor, C.DEFAULT_COLOR_BG));
