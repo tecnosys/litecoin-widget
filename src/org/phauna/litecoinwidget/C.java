@@ -3,6 +3,7 @@ package org.phauna.litecoinwidget;
 import java.util.Currency;
 
 public class C {
+  public static final String EXCH_CRSY = "exch_crsy";
   public static final String EXCH_VREX = "exch_vrex";
   public static final String EXCH_MGOX = "exch_mgox";
   public static final String EXCH_BTCE = "exch_btce";
@@ -15,6 +16,8 @@ public class C {
       return R.array.array_vrex_coins;
     } else if (exchange.equals(EXCH_BTCE)) {
       return R.array.array_btce_coins;
+    } else if (exchange.equals(EXCH_CRSY)) {
+      return R.array.array_crsy_coins;
     } else if (exchange.equals(EXCH_MGOX) || exchange.equals(EXCH_CPBX) || exchange.equals(EXCH_BSTP) || exchange.equals(EXCH_CBSE)) {
       return R.array.array_mgox_coins;
     } else {
@@ -39,6 +42,8 @@ public class C {
   public static String exchangeName(String exchange) {
     if (   exchange.equals(EXCH_VREX)) {
       return "V'rex";
+    } else if (exchange.equals(EXCH_CRSY)) {
+      return "C'tsy";
     } else if (exchange.equals(EXCH_BTCE)) {
       return "Btc-e";
     } else if (exchange.equals(EXCH_MGOX)) {

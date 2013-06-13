@@ -176,6 +176,27 @@ public class Downloaders {
     return 0;
   }
 
+  // all prices @ cryptsy are currently in BTC
+  public double getCryptsyPrice(String coin) {
+    try {
+      URL url = new URL("https://www.cryptsy.com/api.php?method=marketdata");
+      String json = downloadReq(url);
+      if (json == null) return 0;
+      try {
+        JSONObject j = new JSONObject(json);
+        JSONObject r = j.getJSONObject("return").getJSONObject("markets").getJSONObject(coin);
+        double last = r.getDouble("lasttradeprice");
+        return last;
+      } catch (JSONException e) {
+        toastLong("jsonException parsing: " + json);
+      }
+    } catch (MalformedURLException e) {
+      assert false;
+    }
+
+    return 0;
+  }
+
   public double getBitstampPrice() {
     try {
       URL url = new URL("https://www.bitstamp.net/api/ticker/");

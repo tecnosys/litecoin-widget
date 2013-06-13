@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
  <string-array name="array_exchanges">
+  <item>Cryptsy</item>
   <item>Vircurex</item>
   <item>Btc-e</item>
   <item>Mtgox</item>
@@ -9,6 +10,7 @@
   <item>Coinbase</item>
  </string-array>
  <string-array name="array_exchange_values">
+  <item>exch_crsy</item>
   <item>exch_vrex</item>
   <item>exch_btce</item>
   <item>exch_mgox</item>
@@ -21,6 +23,16 @@
   <item>LTC</item>
   <item>NMC</item>
   <item>PPC</item>
+  <item>TRC</item>
+  <item>FTC</item>
+  <item>FRC</item>
+ </string-array>
+
+ <string-array name="array_crsy_coins">
+  <item>LTC</item>
+  <item>NMC</item>
+  <item>PPC</item>
+  <item>NVC</item>
   <item>TRC</item>
   <item>FTC</item>
   <item>FRC</item>
@@ -39,6 +51,7 @@
   <item>BTC</item>
   <item>NMC</item>
   <item>PPC</item>
+  <item>NVC</item>
   <item>TRC</item>
   <item>FTC</item>
  </string-array>

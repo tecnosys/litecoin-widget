@@ -151,6 +151,8 @@ public class UpdateWidgetService extends Service {
       boolean estimatedPriceOWC = false;
       if (eid.equals(C.EXCH_VREX)) {
         priceBTC = downloaders.getVircurexPrice(coin);
+      } else if (eid.equals(C.EXCH_CRSY)) {
+        priceBTC = downloaders.getCryptsyPrice(coin);
       } else if (eid.equals(C.EXCH_BTCE)) {
         if (coin.equals("BTC") || coin.equals("LTC")) {
           if (owc.equals("RUR") || owc.equals("USD")) {
