@@ -179,7 +179,7 @@ public class Downloaders {
   // all prices @ cryptsy are currently in BTC
   public double getCryptsyPrice(String coin) {
     try {
-      URL url = new URL("https://www.cryptsy.com/api.php?method=marketdata");
+      URL url = new URL("http://pubapi.cryptsy.com/api.php?method=marketdata");
       String json = downloadReq(url);
       if (json == null) return 0;
       try {
